@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nacey_flutter_tools/theme/colors.dart';
 
 class RoyalColors {
   static ColorScheme royalPurpleLightScheme =
@@ -16,10 +15,10 @@ class RoyalColors {
             onTertiary: Colors.white,
             tertiaryContainer: maroon200,
             onTertiaryContainer: Colors.black,
-            error: stopSignRed,
+            error: Colors.red,
             onError: Colors.white,
             errorContainer: materialYellow200,
-            onErrorContainer: stopSignRed,
+            onErrorContainer: Colors.red,
             background: maroon100,
             onBackground: Colors.black,
             surface: midnight100,
@@ -42,10 +41,10 @@ class RoyalColors {
             onTertiary: Colors.white,
             tertiaryContainer: maroon200,
             onTertiaryContainer: Colors.black,
-            error: stopSignRed,
+            error: Colors.red,
             onError: Colors.white,
             errorContainer: materialYellow200,
-            onErrorContainer: stopSignRed,
+            onErrorContainer: Colors.red,
             background: maroon100,
             onBackground: Colors.black,
             surface: midnight100,

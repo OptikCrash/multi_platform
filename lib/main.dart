@@ -5,13 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:multi_platform/resources/theme/purple_theme.dart';
-import 'package:multi_platform/screens/main_home/buttons.dart';
-import 'package:multi_platform/screens/main_home/fields.dart';
+import 'package:multi_platform/screens/buttons/buttons.dart';
+import 'package:multi_platform/screens/fields/fields.dart';
 import 'package:multi_platform/screens/main_home/greeting.dart';
-import 'package:nacey_flutter_tools/nacey_flutter_tools.dart';
 
 import 'enums.dart';
 import 'notifiers/screen_indexer.dart';
+import 'widgets/buttons.dart';
 
 final mainIndexProvider =
     ChangeNotifierProvider<ScreenIndexProvider>((ref) => ScreenIndexProvider());
