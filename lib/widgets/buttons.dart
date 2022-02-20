@@ -5,12 +5,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../enums.dart';
+
 // Measured against iOS 12 in Xcode.
 const EdgeInsets _kButtonPadding = EdgeInsets.all(8.0);
 const EdgeInsets _kBackgroundButtonPadding = EdgeInsets.symmetric(
   vertical: 14.0,
   horizontal: 64.0,
 );
+final os _operatingSystem = (kIsWeb)
+    ? os.web
+    : (Platform.isIOS)
+        ? os.ios
+        : (Platform.isMacOS)
+            ? os.mac
+            : (Platform.isLinux)
+                ? os.linux
+                : (Platform.isWindows)
+                    ? os.windows
+                    : os.android;
 
 class NButton extends ButtonStyleButton {
   //region constructors
@@ -27,6 +40,9 @@ class NButton extends ButtonStyleButton {
     this.pressedOpacity,
     this.onHighlightChanged,
     this.mouseCursor,
+    this.enabledMouseCursor,
+    this.hoveredMouseCursor,
+    this.disabledMouseCursor,
     this.textStyle,
     this.fillColor,
     this.focusColor,
@@ -39,11 +55,11 @@ class NButton extends ButtonStyleButton {
     this.alignment = Alignment.center,
     this.minSize = kMinInteractiveDimensionCupertino,
     this.borderRadius = const BorderRadius.all(Radius.circular(8.0)),
-    this.elevation = 2.0,
-    this.hoverElevation = 4.0,
-    this.focusElevation = 4.0,
-    this.highlightElevation = 8.0,
-    this.disabledElevation = 0.0,
+    this.elevation,
+    this.hoverElevation,
+    this.focusElevation,
+    this.highlightElevation,
+    this.disabledElevation,
     this.visualDensity = VisualDensity.standard,
     this.constraints = const BoxConstraints(minWidth: 86.0, minHeight: 36.0),
     this.shape = const RoundedRectangleBorder(
@@ -55,16 +71,15 @@ class NButton extends ButtonStyleButton {
     this.enableFeedback = true,
     this.useMaterial = false,
     this.useCupertino = false,
+    this.useCupertinoPro = false,
+    this.useFluent = false,
+    this.useLinux = false,
+    this.useWeb = false,
     this.isFlat = false,
     this.isFilled = false,
     this.isTinted = false,
     this.isIconOnly = false,
   })  : assert(shape != null),
-        assert(elevation != null && elevation >= 0.0),
-        assert(focusElevation != null && focusElevation >= 0.0),
-        assert(hoverElevation != null && hoverElevation >= 0.0),
-        assert(highlightElevation != null && highlightElevation >= 0.0),
-        assert(disabledElevation != null && disabledElevation >= 0.0),
         assert(constraints != null),
         assert(animationDuration != null),
         assert(clipBehavior != null),
@@ -249,6 +264,9 @@ class NButton extends ButtonStyleButton {
   final EdgeInsetsGeometry? padding;
   final ValueChanged<bool>? onHighlightChanged;
   final MouseCursor? mouseCursor;
+  final MouseCursor? enabledMouseCursor;
+  final MouseCursor? hoveredMouseCursor;
+  final MouseCursor? disabledMouseCursor;
   final TextStyle? textStyle;
   final Color? fillColor;
   final Color? focusColor;
@@ -262,11 +280,11 @@ class NButton extends ButtonStyleButton {
   final double? pressedOpacity;
   final BorderRadius? borderRadius;
   final AlignmentGeometry alignment;
-  final double elevation;
-  final double hoverElevation;
-  final double focusElevation;
-  final double highlightElevation;
-  final double disabledElevation;
+  final double? elevation;
+  final double? hoverElevation;
+  final double? focusElevation;
+  final double? highlightElevation;
+  final double? disabledElevation;
   final VisualDensity visualDensity;
   final BoxConstraints constraints;
   final ShapeBorder shape;
@@ -275,6 +293,10 @@ class NButton extends ButtonStyleButton {
   final bool enableFeedback;
   final bool useMaterial;
   final bool useCupertino;
+  final bool useCupertinoPro;
+  final bool useFluent;
+  final bool useLinux;
+  final bool useWeb;
   final bool isFlat;
   final bool isFilled;
   final bool isTinted;
@@ -297,6 +319,7 @@ class NButton extends ButtonStyleButton {
     BorderSide? side,
     OutlinedBorder? shape,
     MouseCursor? enabledMouseCursor,
+    MouseCursor? hoveredMouseCursor,
     MouseCursor? disabledMouseCursor,
     VisualDensity? visualDensity,
     MaterialTapTargetSize? tapTargetSize,
@@ -308,7 +331,7 @@ class NButton extends ButtonStyleButton {
     if (padding == null) {
       if (useMaterial) {
         padding ??= _kButtonPadding;
-      } else if (useCupertino) {
+      } else if (useCupertino || useCupertinoPro) {
         padding ??= _kBackgroundButtonPadding;
       } else {
         padding ??= (Platform.isIOS || Platform.isMacOS)
@@ -316,28 +339,48 @@ class NButton extends ButtonStyleButton {
             : _kButtonPadding;
       }
     }
-    final MaterialStateProperty<double>? elevationValue =
-        (elevation == null) ? null : _NButtonDefaultElevation(elevation);
-    final MaterialStateProperty<MouseCursor>? mouseCursor =
-        (enabledMouseCursor == null && disabledMouseCursor == null)
-            ? null
-            : _NButtonDefaultMouseCursor(
-                enabledMouseCursor!, disabledMouseCursor!);
+    final buttonKind _buttonKind = (isFlat)
+        ? buttonKind.flat
+        : (isFilled)
+            ? buttonKind.filled
+            : (isTinted)
+                ? buttonKind.tinted
+                : buttonKind.outlined;
+    final MaterialStateProperty<Color?>? _background =
+        _NButtonDefaultBackground(
+            backgroundColor, onSurface, _buttonKind, _operatingSystem);
+    final MaterialStateProperty<Color?>? _foreground =
+        _NButtonDefaultForeground(primary, textStyle?.color, onSurface,
+            _buttonKind, _operatingSystem);
+    final MaterialStateProperty<Color?>? _overlay = _NButtonDefaultOverlay(
+        overlayColor,
+        fillColor,
+        textStyle?.color ?? onSurface,
+        _buttonKind,
+        _operatingSystem);
+    final MaterialStateProperty<double>? _elevationValue =
+        _NButtonDefaultElevation(_operatingSystem);
+    final MaterialStateProperty<MouseCursor?>? _mouseCursor =
+        _NButtonDefaultMouseCursor(mouseCursor, enabledMouseCursor,
+            disabledMouseCursor, hoveredMouseCursor, _operatingSystem);
+
+    MaterialStateProperty<TextStyle?>? _textStyle =
+        _NButtonDefaultTextStyle(textStyle, _operatingSystem);
 
     return ButtonStyle(
-      textStyle: NButton.allOrNull<TextStyle>(textStyle),
-      foregroundColor: NButton.allOrNull(foregroundColor),
-      backgroundColor: NButton.allOrNull(Colors.pinkAccent),
-      overlayColor: NButton.allOrNull(overlayColor),
+      textStyle: _textStyle,
+      foregroundColor: _foreground,
+      backgroundColor: _background,
+      overlayColor: _overlay,
       shadowColor: NButton.allOrNull<Color>(shadowColor),
-      elevation: elevationValue,
+      elevation: _elevationValue,
       padding: NButton.allOrNull(padding),
       minimumSize: NButton.allOrNull<Size>(minimumSize),
       fixedSize: NButton.allOrNull<Size>(fixedSize),
       maximumSize: NButton.allOrNull<Size>(maximumSize),
       side: NButton.allOrNull<BorderSide>(side),
       shape: NButton.allOrNull<OutlinedBorder>(shape),
-      mouseCursor: mouseCursor,
+      mouseCursor: _mouseCursor,
       visualDensity: visualDensity,
       tapTargetSize: tapTargetSize,
       animationDuration: animationDuration,
@@ -368,6 +411,14 @@ class NButton extends ButtonStyleButton {
       const EdgeInsets.symmetric(horizontal: 16),
       MediaQuery.maybeOf(context)?.textScaleFactor ?? 1,
     );
+    final buttonKind _buttonKind = (isFlat)
+        ? buttonKind.flat
+        : (isFilled)
+            ? buttonKind.filled
+            : (isTinted)
+                ? buttonKind.tinted
+                : buttonKind.outlined;
+
     final scaledPadding = (useMaterial)
         ? scaledPaddingMaterial
         : (useCupertino)
@@ -389,15 +440,23 @@ class NButton extends ButtonStyleButton {
                         : (Platform.isWindows)
                             ? 'Segoe'
                             : 'Arial';
+    Color background = (_buttonKind == buttonKind.filled)
+        ? colorScheme.primary
+        : (_buttonKind == buttonKind.tinted)
+            ? colorScheme.primary.withOpacity(0.1)
+            : Colors.transparent;
+    Color foreground = (_buttonKind == buttonKind.filled)
+        ? colorScheme.onPrimary
+        : colorScheme.primary;
 
     ButtonStyle buttonStyle = styleFrom(
-      backgroundColor: Colors.pinkAccent,
-      foregroundColor: colorScheme.primary,
+      textStyle: theme.textTheme.button
+          ?.copyWith(color: foreground, fontFamily: fontFamily),
+      backgroundColor: background,
+      foregroundColor: foreground,
       overlayColor: colorScheme.primary.withOpacity(0.2),
       shadowColor: theme.shadowColor,
       elevation: 2,
-      textStyle: theme.textTheme.button
-          ?.copyWith(color: theme.colorScheme.primary, fontFamily: fontFamily),
       padding: scaledPadding,
       minimumSize: const Size(64, 36),
       maximumSize: Size.infinite,
@@ -422,23 +481,7 @@ class NButton extends ButtonStyleButton {
       primary: colorScheme.primary,
       onSurface: colorScheme.onSurface,
     );
-    if (isFlat) {
-      return buttonStyle.copyWith(
-          backgroundColor: null,
-          side: NButton.allOrNull(const BorderSide(color: Colors.transparent)));
-    } else if (isTinted) {
-      return buttonStyle.copyWith(
-          shadowColor: NButton.allOrNull(Colors.transparent),
-          backgroundColor:
-              NButton.allOrNull(colorScheme.primary.withOpacity(0.1)));
-    } else if (isFilled) {
-      return buttonStyle.copyWith(
-          textStyle: NButton.allOrNull(TextStyle(color: colorScheme.onPrimary)),
-          foregroundColor: NButton.allOrNull(colorScheme.onPrimary),
-          backgroundColor: NButton.allOrNull(colorScheme.primary));
-    } else {
-      return buttonStyle;
-    }
+    return buttonStyle;
   }
 
   @override
@@ -476,43 +519,194 @@ class NButton extends ButtonStyleButton {
 //endregion
 }
 
+// hovered
+// focused
+// pressed
+// dragged
+// selected
+// scrolledUnder
+// disabled
+// error
+@immutable
+class _NButtonDefaultBackground extends MaterialStateProperty<Color?>
+    with Diagnosticable {
+  _NButtonDefaultBackground(
+      this.fillColor, this.textColor, this.buttonType, this.operatingSystem);
+
+  final Color? fillColor;
+  final Color? textColor;
+  final buttonKind buttonType;
+  final os operatingSystem;
+
+  @override
+  Color? resolve(Set<MaterialState> states) {
+    if (states.contains(MaterialState.disabled)) {
+      return textColor?.withOpacity(0.12);
+    }
+    Color? btnColor;
+    switch (buttonType) {
+      case buttonKind.outlined:
+        btnColor = Colors.transparent;
+        break;
+      case buttonKind.flat:
+        btnColor = Colors.transparent;
+        break;
+      case buttonKind.tinted:
+        btnColor = fillColor?.withOpacity(0.1);
+        break;
+      case buttonKind.filled:
+        btnColor = fillColor;
+        break;
+    }
+    return btnColor;
+  }
+}
+
+@immutable
+class _NButtonDefaultForeground extends MaterialStateProperty<Color?>
+    with Diagnosticable {
+  _NButtonDefaultForeground(this.primary, this.onPrimary, this.onSurface,
+      this.buttonType, this.operatingSystem);
+
+  final Color? primary;
+  final Color? onPrimary;
+  final Color? onSurface;
+  final buttonKind buttonType;
+  final os operatingSystem;
+
+  @override
+  Color? resolve(Set<MaterialState> states) {
+    if (states.contains(MaterialState.disabled)) {
+      return onSurface?.withOpacity(0.38);
+    }
+    Color? foreground;
+    switch (buttonType) {
+      case buttonKind.outlined:
+        foreground = primary;
+        break;
+      case buttonKind.flat:
+        foreground = primary;
+        break;
+      case buttonKind.tinted:
+        foreground = primary;
+        break;
+      case buttonKind.filled:
+        foreground = onPrimary;
+        break;
+    }
+    return foreground;
+  }
+}
+
+@immutable
+class _NButtonDefaultOverlay extends MaterialStateProperty<Color?>
+    with Diagnosticable {
+  _NButtonDefaultOverlay(this.overlayColor, this.primary, this.onPrimary,
+      this.buttonType, this.operatingSystem);
+
+  final Color? overlayColor;
+  final Color? primary;
+  final Color? onPrimary;
+  final buttonKind buttonType;
+  final os operatingSystem;
+
+  @override
+  Color? resolve(Set<MaterialState> states) {
+    if (states.contains(MaterialState.hovered)) {
+      return onPrimary?.withOpacity(0.08);
+    }
+    if (states.contains(MaterialState.focused) ||
+        states.contains(MaterialState.pressed)) {
+      return onPrimary?.withOpacity(0.24);
+    }
+    return overlayColor;
+  }
+}
+
 @immutable
 class _NButtonDefaultElevation extends MaterialStateProperty<double>
     with Diagnosticable {
-  _NButtonDefaultElevation(this.elevation);
+  _NButtonDefaultElevation(this.buttonType);
 
-  final double elevation;
+  final double elevation = 2.0;
+  final os buttonType;
 
   @override
   double resolve(Set<MaterialState> states) {
     if (states.contains(MaterialState.disabled)) {
-      return 0;
+      return 0.0;
     }
     if (states.contains(MaterialState.hovered)) {
-      return elevation + 2;
+      return elevation + 2.0;
     }
     if (states.contains(MaterialState.focused)) {
-      return elevation + 2;
+      return elevation + 2.0;
     }
     if (states.contains(MaterialState.pressed)) {
-      return elevation + 6;
+      return elevation + 6.0;
     }
     return elevation;
   }
 }
 
 @immutable
-class _NButtonDefaultMouseCursor extends MaterialStateProperty<MouseCursor>
+class _NButtonDefaultMouseCursor extends MaterialStateProperty<MouseCursor?>
     with Diagnosticable {
-  _NButtonDefaultMouseCursor(this.enabledCursor, this.disabledCursor);
+  _NButtonDefaultMouseCursor(this.mouseCursor, this.enabledCursor,
+      this.disabledCursor, this.hoveredCursor, this.operatingSystem);
 
-  final MouseCursor enabledCursor;
-  final MouseCursor disabledCursor;
+  final MouseCursor? mouseCursor;
+  final MouseCursor? enabledCursor;
+  final MouseCursor? disabledCursor;
+  final MouseCursor? hoveredCursor;
+  final os operatingSystem;
 
   @override
-  MouseCursor resolve(Set<MaterialState> states) {
-    if (states.contains(MaterialState.disabled)) return disabledCursor;
-    return enabledCursor;
+  MouseCursor resolve(Set<MaterialState> states) => (mouseCursor == null)
+      ? (states.contains(MaterialState.disabled))
+          ? (disabledCursor ?? SystemMouseCursors.forbidden)
+          : (states.contains(MaterialState.hovered))
+              ? (hoveredCursor ?? SystemMouseCursors.basic)
+              : (enabledCursor ?? SystemMouseCursors.click)
+      : mouseCursor!;
+}
+
+@immutable
+class _NButtonDefaultTextStyle extends MaterialStateProperty<TextStyle?>
+    with Diagnosticable {
+  _NButtonDefaultTextStyle(this.textStyle, this.operatingSystem);
+  final TextStyle? textStyle;
+  final os operatingSystem;
+
+  @override
+  TextStyle resolve(Set<MaterialState> states) {
+    if (textStyle != null) {
+      return textStyle!;
+    } else {
+      var font = 'Arial';
+      var size = 12.0;
+      switch (operatingSystem) {
+        case os.web:
+          font = '';
+          break;
+        case os.android:
+          font = 'Roboto';
+          break;
+        case os.ios:
+          font = 'SanFrancisco-Compact';
+          break;
+        case os.mac:
+          font = 'SanFrancisco-Pro';
+          break;
+        case os.windows:
+          font = 'Segoe';
+          break;
+        case os.linux:
+          font = 'Segoe';
+          break;
+      }
+      return TextStyle(fontFamily: font, fontSize: size);
+    }
   }
 }
 
@@ -1172,3 +1366,4 @@ class _NButtonWithIconChild extends StatelessWidget {
     Material  || text   | toggle| outlined| contained ||
               ==========================================
  */
+enum buttonKind { flat, outlined, tinted, filled }
