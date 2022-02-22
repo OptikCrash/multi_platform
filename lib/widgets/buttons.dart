@@ -407,7 +407,9 @@ class NButton extends ButtonStyleButton {
             ? ButtonKind.filled
             : (isTinted)
                 ? ButtonKind.tinted
-                : ButtonKind.outlined;
+                : (isGrey)
+                  ? ButtonKind.grey
+                  : ButtonKind.outlined;
     final MaterialStateProperty<Color?> _background = _NButtonDefaultBackground(
         primary, backgroundColor, onSurface, _buttonKind, _operatingSystem);
     final MaterialStateProperty<Color?> _foreground = _NButtonDefaultForeground(
@@ -498,7 +500,9 @@ class NButton extends ButtonStyleButton {
             ? ButtonKind.filled
             : (isTinted)
                 ? ButtonKind.tinted
-                : ButtonKind.outlined;
+                : (isGrey)
+                  ? ButtonKind.grey
+                  : ButtonKind.outlined;
 
     final scaledPadding = (useMaterial)
         ? scaledPaddingMaterial
@@ -535,7 +539,9 @@ class NButton extends ButtonStyleButton {
         ? colorScheme.primary
         : (_buttonKind == ButtonKind.tinted)
             ? colorScheme.primary.withOpacity(0.1)
-            : Colors.transparent;
+            : (_buttonKind == ButtonKind.grey)
+        ? colorScheme.onSurface.withOpacity(0.1)
+        : Colors.transparent;
     Color foreground = (_buttonKind == ButtonKind.filled)
         ? colorScheme.onPrimary
         : colorScheme.primary;
@@ -588,11 +594,11 @@ class NButton extends ButtonStyleButton {
                 : (useCupertino)
                     ? 90
                     : (useCupertinoPro)
-                        ? 150
+                        ? 100
                         : (useLinux)
                             ? 100
                             : (useWeb)
-                                ? 100
+                                ? 120
                                 : 36,
         (useFluent)
             ? 32
@@ -601,11 +607,11 @@ class NButton extends ButtonStyleButton {
                 : (useCupertino)
                     ? 44
                     : (useCupertinoPro)
-                        ? 48
+                        ? 46
                         : (useLinux)
                             ? 30
                             : (useWeb)
-                                ? 60
+                                ? 48
                                 : 36);
 
     final double _fontSize = (useMaterial)
@@ -619,7 +625,7 @@ class NButton extends ButtonStyleButton {
                     : (useLinux)
                         ? 16
                         : (useWeb)
-                            ? 16
+                            ? 24
                             : 18;
     final FontWeight _fontWeight = (useMaterial)
         ? FontWeight.w600
@@ -632,7 +638,7 @@ class NButton extends ButtonStyleButton {
                     : (useLinux)
                         ? FontWeight.w600
                         : (useWeb)
-                            ? FontWeight.w600
+                            ? FontWeight.w400
                             : FontWeight.w600;
 
     ButtonStyle buttonStyle = styleFrom(
@@ -1721,9 +1727,10 @@ class _NButtonDefaultBackground extends MaterialStateProperty<Color?>
     Color? btnColor;
     switch (buttonType) {
       case ButtonKind.outlined:
-        btnColor = (operatingSystem == os.ios || operatingSystem == os.mac)
-            ? surfaceColor?.withOpacity(0.1)
-            : null;
+        btnColor = null;
+        break;
+      case ButtonKind.grey:
+        btnColor = surfaceColor?.withOpacity(0.1);
         break;
       case ButtonKind.flat:
         btnColor = null;
@@ -1756,22 +1763,7 @@ class _NButtonDefaultForeground extends MaterialStateProperty<Color?>
     if (states.contains(MaterialState.disabled)) {
       return onSurface?.withOpacity(0.38);
     }
-    Color? foreground;
-    switch (buttonType) {
-      case ButtonKind.outlined:
-        foreground = primary;
-        break;
-      case ButtonKind.flat:
-        foreground = primary;
-        break;
-      case ButtonKind.tinted:
-        foreground = primary;
-        break;
-      case ButtonKind.filled:
-        foreground = onPrimary;
-        break;
-    }
-    return foreground;
+    return (buttonType == ButtonKind.filled) ? onPrimary : primary;
   }
 }
 
@@ -1796,10 +1788,7 @@ class _NButtonDefaultOverlay extends MaterialStateProperty<Color?>
         states.contains(MaterialState.pressed)) {
       return onPrimary?.withOpacity(0.24);
     }
-    return (buttonType == ButtonKind.outlined &&
-            (operatingSystem == os.ios || operatingSystem == os.mac))
-        ? CupertinoColors.inactiveGray.withOpacity(0.5)
-        : overlayColor;
+    return overlayColor;
   }
 }
 
@@ -1816,6 +1805,7 @@ class _NButtonDefaultElevation extends MaterialStateProperty<double>
   double resolve(Set<MaterialState> states) {
     if (buttonType == ButtonKind.flat ||
         buttonType == ButtonKind.tinted ||
+        buttonType == ButtonKind.grey ||
         operatingSystem == os.ios ||
         operatingSystem == os.mac) {
       return 0.0;

@@ -296,6 +296,7 @@ class ButtonsScreen extends StatelessWidget {
                   onPressed: () {},
                   child: const Text('Web'),
                   useWeb: true,
+                  corner: CornerType.beveled,
                 ),
                 const SizedBox(width: 8),
                 NButton(
@@ -303,6 +304,7 @@ class ButtonsScreen extends StatelessWidget {
                   child: const Text('Flat'),
                   isFlat: true,
                   useWeb: true,
+                  corner: CornerType.beveled,
                 ),
                 const SizedBox(width: 8),
                 NButton(
@@ -310,6 +312,7 @@ class ButtonsScreen extends StatelessWidget {
                   child: const Text('Grey'),
                   isGrey: true,
                   useWeb: true,
+                  corner: CornerType.beveled,
                 ),
               ],
             ),
@@ -321,6 +324,7 @@ class ButtonsScreen extends StatelessWidget {
                   child: const Text('Tinted'),
                   isTinted: true,
                   useWeb: true,
+                  corner: CornerType.beveled,
                 ),
                 const SizedBox(width: 8),
                 NButton(
@@ -328,6 +332,7 @@ class ButtonsScreen extends StatelessWidget {
                   child: const Text('Filled'),
                   isFilled: true,
                   useWeb: true,
+                  corner: CornerType.beveled,
                 ),
               ],
             ),
