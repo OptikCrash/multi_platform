@@ -33,6 +33,17 @@ dev_dependencies:
 
 flutter:
   fonts:
+    - family: Cantarell
+      fonts:
+        - asset: fonts/cantarell/cantarell_regular.ttf
+          weight: 400
+        - asset: fonts/cantarell/cantarell_bold.ttf
+          weight: 700
+        - asset: fonts/cantarell/cantarell_italic.ttf
+          style: italic
+        - asset: fonts/cantarell/cantarell_bold_italic.ttf
+          weight: 700
+          style: italic
     - family: Roboto
       fonts:
         - asset: fonts/roboto/roboto_thin.ttf

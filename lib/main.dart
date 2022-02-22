@@ -41,6 +41,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: Purple.lightTheme,
         darkTheme: Purple.darkTheme,
+        // theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
+        // darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
         home: const Main());
   }
 }
@@ -75,11 +77,7 @@ class _MainState extends ConsumerState<Main> {
 
   get _index =>
       ref.watch(mainIndexProvider.select((provider) => provider.currentIndex));
-  get _macScaffold => Container();
-  get _linuxScaffold => Container();
-  get _windowsScaffold => Container();
-  get _webScaffold => Container();
-  get _iosScaffold => OrientationBuilder(
+  get _macScaffold => OrientationBuilder(
       builder: (context, orientation) => orientation == Orientation.portrait
           ? CupertinoPageScaffold(
               navigationBar: CupertinoNavigationBar(
@@ -114,9 +112,6 @@ class _MainState extends ConsumerState<Main> {
                   tabBuilder: (context, index) => _body(index)),
             )
           : CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(
-                middle: _title(_index),
-              ),
               child: CupertinoTabScaffold(
                   tabBar: CupertinoTabBar(
                     items: const [
@@ -145,6 +140,41 @@ class _MainState extends ConsumerState<Main> {
                   ),
                   tabBuilder: (context, index) => _body(index)),
             ));
+  get _linuxScaffold => Container();
+  get _windowsScaffold => Container();
+  get _webScaffold => Container();
+  get _iosScaffold => CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: _title(_index),
+        ),
+        child: CupertinoTabScaffold(
+            tabBar: CupertinoTabBar(
+              items: const [
+                BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.house_fill),
+                    label: 'home',
+                    activeIcon: Icon(CupertinoIcons.house),
+                    tooltip: 'home'),
+                BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.person_fill),
+                    label: 'buttons',
+                    activeIcon: Icon(CupertinoIcons.person),
+                    tooltip: 'buttons tab'),
+                BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.settings_solid),
+                    label: 'fields',
+                    activeIcon: Icon(CupertinoIcons.settings),
+                    tooltip: 'fields tab')
+              ],
+              onTap: _navigate,
+              activeColor: Theme.of(context).colorScheme.secondary,
+              backgroundColor: Theme.of(context)
+                      .cupertinoOverrideTheme
+                      ?.barBackgroundColor ??
+                  Colors.pink,
+            ),
+            tabBuilder: (context, index) => _body(index)),
+      );
   get _androidScaffold => Scaffold(
         appBar: _appBar(_index),
         body: _body(_index),

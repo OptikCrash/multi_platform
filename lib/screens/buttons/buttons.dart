@@ -22,38 +22,317 @@ class ButtonsScreen extends StatelessWidget {
   }
 
   Widget _androidButtons(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            buttons,
-            style:
-                Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
-            textAlign: TextAlign.center,
-          ),
-          NButton(
-            onPressed: () {},
-            child: const Text('Generic'),
-          ),
-          NButton(
-            onPressed: () {},
-            child: const Text('Material'),
-            useMaterial: true,
-          ),
-          NButton(
-            onPressed: () {},
-            child: const Text('Cupertino'),
-            useCupertino: true,
-          ),
-          NButton.filled(
-            onPressed: () {},
-            child: const Text('Fluent'),
-          ),
-        ],
+    return SingleChildScrollView(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              buttons,
+              style:
+                  Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
+              textAlign: TextAlign.center,
+            ),
+            Text('N-Buttons', style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Default'),
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Grey'),
+                  isGrey: true,
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                ),
+              ],
+            ),
+            Text('android Buttons',
+                style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Material'),
+                  useMaterial: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                  useMaterial: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Grey'),
+                  isGrey: true,
+                  useMaterial: true,
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                  useMaterial: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                  useMaterial: true,
+                ),
+              ],
+            ),
+            Text('iOS Buttons', style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Cupertino'),
+                  useCupertino: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                  useCupertino: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Grey'),
+                  isGrey: true,
+                  useCupertino: true,
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                  useCupertino: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                  useCupertino: true,
+                ),
+              ],
+            ),
+            Text('Windows Buttons',
+                style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Fluent'),
+                  useFluent: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                  useFluent: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Grey'),
+                  isGrey: true,
+                  useFluent: true,
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                  useFluent: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                  useFluent: true,
+                ),
+              ],
+            ),
+            Text('macOS Buttons',
+                style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Cupertino-Pro'),
+                  useCupertinoPro: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                  useCupertinoPro: true,
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: NButton(
+                    onPressed: () {},
+                    child: const Text('Grey'),
+                    isGrey: true,
+                    useCupertinoPro: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                  useCupertinoPro: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                  useCupertinoPro: true,
+                ),
+              ],
+            ),
+            Text('Linux Buttons',
+                style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Linux?'),
+                  useLinux: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                  useLinux: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Grey'),
+                  isGrey: true,
+                  useLinux: true,
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                  useLinux: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                  useLinux: true,
+                ),
+              ],
+            ),
+            Text('Web Buttons', style: Theme.of(context).textTheme.titleMedium),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Web'),
+                  useWeb: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Flat'),
+                  isFlat: true,
+                  useWeb: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Grey'),
+                  isGrey: true,
+                  useWeb: true,
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Tinted'),
+                  isTinted: true,
+                  useWeb: true,
+                ),
+                const SizedBox(width: 8),
+                NButton(
+                  onPressed: () {},
+                  child: const Text('Filled'),
+                  isFilled: true,
+                  useWeb: true,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
