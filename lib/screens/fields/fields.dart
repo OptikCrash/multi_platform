@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:multi_platform/enums.dart';
 
 import '../../main.dart';
+import '../../widgets/buttons.dart';
 
 class FieldsScreen extends StatelessWidget {
   const FieldsScreen({Key? key}) : super(key: key);
@@ -10,12 +11,12 @@ class FieldsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (operatingSystem) {
-      case os.mac:
-      case os.linux:
-      case os.windows:
-      case os.web:
-      case os.ios:
-      case os.android:
+      case OS.mac:
+      case OS.linux:
+      case OS.windows:
+      case OS.web:
+      case OS.ios:
+      case OS.android:
         return _androidFields(context);
     }
   }
@@ -34,6 +35,7 @@ class FieldsScreen extends StatelessWidget {
                 Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
             textAlign: TextAlign.center,
           ),
+          NButton(child: const Text('Default N-Button'), onPressed: () {})
         ],
       ),
     );

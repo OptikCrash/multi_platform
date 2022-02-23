@@ -11,12 +11,12 @@ class ButtonsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (operatingSystem) {
-      case os.mac:
-      case os.linux:
-      case os.windows:
-      case os.web:
-      case os.ios:
-      case os.android:
+      case OS.mac:
+      case OS.linux:
+      case OS.windows:
+      case OS.web:
+      case OS.ios:
+      case OS.android:
         return _androidButtons(context);
     }
   }

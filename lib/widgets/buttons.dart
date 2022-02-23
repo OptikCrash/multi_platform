@@ -11,13 +11,13 @@ class NButton extends ButtonStyleButton {
   //region constructors
   const NButton(
       {Key? key,
-      required this.onPressed,
-      required this.child,
-      this.onLongPress,
-      this.onHover,
-      this.onFocusChange,
-      this.style,
-      this.focusNode,
+      required onPressed,
+      required child,
+      onLongPress,
+      onHover,
+      onFocusChange,
+      style,
+      focusNode,
       this.padding,
       this.pressedOpacity,
       this.onHighlightChanged,
@@ -32,8 +32,8 @@ class NButton extends ButtonStyleButton {
       this.highlightColor,
       this.splashColor,
       this.disabledColor = CupertinoColors.quaternarySystemFill,
-      this.autofocus = false,
-      this.clipBehavior = Clip.none,
+      autofocus = false,
+      clipBehavior = Clip.none,
       this.alignment = Alignment.center,
       this.minSize,
       this.borderRadius,
@@ -302,13 +302,6 @@ class NButton extends ButtonStyleButton {
 
   //endregion
   //region properties
-  final Widget child;
-  final VoidCallback onPressed;
-  final VoidCallback? onLongPress;
-  final ValueChanged<bool>? onHover;
-  final ValueChanged<bool>? onFocusChange;
-  final ButtonStyle? style;
-  final FocusNode? focusNode;
   final EdgeInsetsGeometry? padding;
   final ValueChanged<bool>? onHighlightChanged;
   final MouseCursor? mouseCursor;
@@ -322,8 +315,6 @@ class NButton extends ButtonStyleButton {
   final Color? highlightColor;
   final Color? splashColor;
   final Color disabledColor;
-  final bool autofocus;
-  final Clip clipBehavior;
   final double? minSize;
   final double? pressedOpacity;
   final BorderRadius? borderRadius;
@@ -378,29 +369,29 @@ class NButton extends ButtonStyleButton {
     AlignmentGeometry? alignment,
     InteractiveInkFeatureFactory? splashFactory,
   }) {
-    final os _operatingSystem = (useMaterial)
-        ? os.android
+    final OS _operatingSystem = (useMaterial)
+        ? OS.android
         : (useCupertino)
-            ? os.ios
+            ? OS.ios
             : (useCupertinoPro)
-                ? os.mac
+                ? OS.mac
                 : (useFluent)
-                    ? os.windows
+                    ? OS.windows
                     : (useLinux)
-                        ? os.linux
+                        ? OS.linux
                         : (useWeb)
-                            ? os.web
+                            ? OS.web
                             : (Platform.isAndroid)
-                                ? os.android
+                                ? OS.android
                                 : (Platform.isIOS)
-                                    ? os.ios
+                                    ? OS.ios
                                     : (Platform.isMacOS)
-                                        ? os.mac
+                                        ? OS.mac
                                         : (Platform.isWindows)
-                                            ? os.windows
+                                            ? OS.windows
                                             : (Platform.isLinux)
-                                                ? os.linux
-                                                : os.web;
+                                                ? OS.linux
+                                                : OS.web;
     final ButtonKind _buttonKind = (isFlat)
         ? ButtonKind.flat
         : (isFilled)
@@ -408,8 +399,8 @@ class NButton extends ButtonStyleButton {
             : (isTinted)
                 ? ButtonKind.tinted
                 : (isGrey)
-                  ? ButtonKind.grey
-                  : ButtonKind.outlined;
+                    ? ButtonKind.grey
+                    : ButtonKind.outlined;
     final MaterialStateProperty<Color?> _background = _NButtonDefaultBackground(
         primary, backgroundColor, onSurface, _buttonKind, _operatingSystem);
     final MaterialStateProperty<Color?> _foreground = _NButtonDefaultForeground(
@@ -471,29 +462,29 @@ class NButton extends ButtonStyleButton {
       MediaQuery.maybeOf(context)?.textScaleFactor ?? 1,
     );
 
-    final os _operatingSystem = (useMaterial)
-        ? os.android
+    final OS _operatingSystem = (useMaterial)
+        ? OS.android
         : (useCupertino)
-            ? os.ios
+            ? OS.ios
             : (useCupertinoPro)
-                ? os.mac
+                ? OS.mac
                 : (useFluent)
-                    ? os.windows
+                    ? OS.windows
                     : (useLinux)
-                        ? os.linux
+                        ? OS.linux
                         : (useWeb)
-                            ? os.web
+                            ? OS.web
                             : (Platform.isAndroid)
-                                ? os.android
+                                ? OS.android
                                 : (Platform.isIOS)
-                                    ? os.ios
+                                    ? OS.ios
                                     : (Platform.isMacOS)
-                                        ? os.mac
+                                        ? OS.mac
                                         : (Platform.isWindows)
-                                            ? os.windows
+                                            ? OS.windows
                                             : (Platform.isLinux)
-                                                ? os.linux
-                                                : os.web;
+                                                ? OS.linux
+                                                : OS.web;
     final ButtonKind _buttonKind = (isFlat)
         ? ButtonKind.flat
         : (isFilled)
@@ -501,14 +492,14 @@ class NButton extends ButtonStyleButton {
             : (isTinted)
                 ? ButtonKind.tinted
                 : (isGrey)
-                  ? ButtonKind.grey
-                  : ButtonKind.outlined;
+                    ? ButtonKind.grey
+                    : ButtonKind.outlined;
 
-    final scaledPadding = (useMaterial)
+    final scaledPadding = (useMaterial || useFluent)
         ? scaledPaddingMaterial
-        : (useCupertino)
+        : (useCupertino || useCupertinoPro)
             ? scaledPaddingCupertino
-            : Platform.isIOS
+            : (Platform.isIOS || Platform.isMacOS)
                 ? scaledPaddingCupertino
                 : scaledPaddingMaterial;
 
@@ -540,45 +531,40 @@ class NButton extends ButtonStyleButton {
         : (_buttonKind == ButtonKind.tinted)
             ? colorScheme.primary.withOpacity(0.1)
             : (_buttonKind == ButtonKind.grey)
-        ? colorScheme.onSurface.withOpacity(0.1)
-        : Colors.transparent;
+                ? colorScheme.onSurface.withOpacity(0.1)
+                : Colors.transparent;
     Color foreground = (_buttonKind == ButtonKind.filled)
         ? colorScheme.onPrimary
         : colorScheme.primary;
-    double borderWidth = (_buttonKind == ButtonKind.flat ||
-            _buttonKind == ButtonKind.tinted &&
-                (_operatingSystem == os.ios ||
-                    _operatingSystem == os.mac ||
-                    useCupertino ||
-                    useCupertinoPro))
+    double borderWidth = (_buttonKind == ButtonKind.flat)
         ? 0
-        : (useMaterial && _buttonKind == ButtonKind.outlined)
-            ? 1.25
-            : (useFluent && _buttonKind != ButtonKind.flat)
-                ? 1
-                : 0.5;
-    BorderStyle borderStyle = (_buttonKind == ButtonKind.flat ||
-            _buttonKind == ButtonKind.filled &&
-                _operatingSystem == os.android ||
-            _buttonKind == ButtonKind.tinted &&
-                (_operatingSystem == os.ios ||
-                    _operatingSystem == os.mac ||
-                    useCupertino ||
-                    useCupertinoPro))
-        ? BorderStyle.none
-        : BorderStyle.solid;
-    Color borderColor = (_buttonKind == ButtonKind.flat ||
-            useCupertino ||
-            useCupertinoPro ||
-            _operatingSystem == os.ios ||
-            _operatingSystem == os.mac)
-        ? colorScheme.surface
-        : (useMaterial && _buttonKind == ButtonKind.outlined)
-            ? colorScheme.primary
-            : (_buttonKind == ButtonKind.outlined ||
-                    _buttonKind == ButtonKind.filled)
-                ? colorScheme.onSurface
-                : colorScheme.primary;
+        : ((useFluent || _operatingSystem == OS.windows) &&
+                _buttonKind != ButtonKind.flat)
+            ? 1.5
+            : ((useMaterial || _operatingSystem == OS.android) &&
+                    _buttonKind != ButtonKind.flat)
+                ? 1.25
+                : 1.75;
+    BorderStyle borderStyle = (_buttonKind == ButtonKind.outlined ||
+            ((!useCupertino &&
+                    !useCupertinoPro &&
+                    _operatingSystem != OS.ios &&
+                    _operatingSystem != OS.mac) &&
+                _buttonKind != ButtonKind.flat))
+        ? BorderStyle.solid
+        : BorderStyle.none;
+    Color borderColor = (useMaterial && _buttonKind == ButtonKind.outlined) ||
+            (_operatingSystem == OS.android &&
+                _buttonKind == ButtonKind.outlined)
+        ? colorScheme.primary
+        : (_buttonKind == ButtonKind.outlined ||
+                (_buttonKind == ButtonKind.filled &&
+                    (_operatingSystem != OS.android && !useMaterial)) ||
+                (useMaterial && _buttonKind == ButtonKind.grey) ||
+                (_operatingSystem == OS.android &&
+                    _buttonKind == ButtonKind.grey))
+            ? colorScheme.onSurface.withOpacity(0.25)
+            : colorScheme.primary;
 
     BorderSide _side = BorderSide(
       color: borderColor,
@@ -587,42 +573,42 @@ class NButton extends ButtonStyleButton {
     );
 
     final Size _minSize = Size(
-        (useFluent)
+        (useFluent || _operatingSystem == OS.windows)
             ? 120
-            : (useMaterial)
+            : (useMaterial || _operatingSystem == OS.android)
                 ? 100
-                : (useCupertino)
+                : (useCupertino || _operatingSystem == OS.ios)
                     ? 90
-                    : (useCupertinoPro)
+                    : (useCupertinoPro || _operatingSystem == OS.mac)
                         ? 100
-                        : (useLinux)
+                        : (useLinux || _operatingSystem == OS.linux)
                             ? 100
                             : (useWeb)
                                 ? 120
                                 : 36,
-        (useFluent)
+        (useFluent || _operatingSystem == OS.windows)
             ? 32
-            : (useMaterial)
+            : (useMaterial || _operatingSystem == OS.android)
                 ? 36
-                : (useCupertino)
+                : (useCupertino || _operatingSystem == OS.ios)
                     ? 44
-                    : (useCupertinoPro)
+                    : (useCupertinoPro || _operatingSystem == OS.mac)
                         ? 46
-                        : (useLinux)
+                        : (useLinux || _operatingSystem == OS.linux)
                             ? 30
                             : (useWeb)
                                 ? 48
                                 : 36);
 
-    final double _fontSize = (useMaterial)
+    final double _fontSize = (useMaterial || _operatingSystem == OS.android)
         ? 14
-        : (useCupertino)
+        : (useCupertino || _operatingSystem == OS.ios)
             ? 16
-            : (useCupertinoPro)
+            : (useCupertinoPro || _operatingSystem == OS.mac)
                 ? 16
-                : (useFluent)
+                : (useFluent || _operatingSystem == OS.windows)
                     ? 14
-                    : (useLinux)
+                    : (useLinux || _operatingSystem == OS.linux)
                         ? 16
                         : (useWeb)
                             ? 24
@@ -1717,7 +1703,7 @@ class _NButtonDefaultBackground extends MaterialStateProperty<Color?>
   final Color? surfaceColor;
   final Color? textColor;
   final ButtonKind buttonType;
-  final os operatingSystem;
+  final OS operatingSystem;
 
   @override
   Color? resolve(Set<MaterialState> states) {
@@ -1756,7 +1742,7 @@ class _NButtonDefaultForeground extends MaterialStateProperty<Color?>
   final Color? onPrimary;
   final Color? onSurface;
   final ButtonKind buttonType;
-  final os operatingSystem;
+  final OS operatingSystem;
 
   @override
   Color? resolve(Set<MaterialState> states) {
@@ -1777,7 +1763,7 @@ class _NButtonDefaultOverlay extends MaterialStateProperty<Color?>
   final Color? primary;
   final Color? onPrimary;
   final ButtonKind buttonType;
-  final os operatingSystem;
+  final OS operatingSystem;
 
   @override
   Color? resolve(Set<MaterialState> states) {
@@ -1799,15 +1785,15 @@ class _NButtonDefaultElevation extends MaterialStateProperty<double>
 
   final double elevation = 2.0;
   final ButtonKind buttonType;
-  final os operatingSystem;
+  final OS operatingSystem;
 
   @override
   double resolve(Set<MaterialState> states) {
     if (buttonType == ButtonKind.flat ||
         buttonType == ButtonKind.tinted ||
         buttonType == ButtonKind.grey ||
-        operatingSystem == os.ios ||
-        operatingSystem == os.mac) {
+        operatingSystem == OS.ios ||
+        operatingSystem == OS.mac) {
       return 0.0;
     }
     if (states.contains(MaterialState.disabled)) {
@@ -1836,7 +1822,7 @@ class _NButtonDefaultMouseCursor extends MaterialStateProperty<MouseCursor?>
   final MouseCursor? enabledCursor;
   final MouseCursor? disabledCursor;
   final MouseCursor? hoveredCursor;
-  final os operatingSystem;
+  final OS operatingSystem;
 
   @override
   MouseCursor resolve(Set<MaterialState> states) => (mouseCursor == null)
@@ -1848,7 +1834,7 @@ class _NButtonDefaultMouseCursor extends MaterialStateProperty<MouseCursor?>
       : mouseCursor!;
 }
 
-OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, os operatingSystem,
+OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, OS operatingSystem,
     {CornerType style = CornerType.rounded, double? cornerSize}) {
   if (cornerSize != null) {
     return (style == CornerType.beveled)
@@ -1861,7 +1847,7 @@ OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, os operatingSystem,
   }
   double _size = 0;
   switch (operatingSystem) {
-    case os.android:
+    case OS.android:
       _size = (style == CornerType.beveled)
           ? 6
           : (style == CornerType.rounded)
@@ -1870,7 +1856,7 @@ OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, os operatingSystem,
                   ? 256
                   : 0;
       break;
-    case os.ios:
+    case OS.ios:
       _size = (style == CornerType.beveled)
           ? 8
           : (style == CornerType.rounded)
@@ -1879,7 +1865,7 @@ OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, os operatingSystem,
                   ? 256
                   : 0;
       break;
-    case os.mac:
+    case OS.mac:
       _size = (style == CornerType.beveled)
           ? 8
           : (style == CornerType.rounded)
@@ -1888,7 +1874,7 @@ OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, os operatingSystem,
                   ? 256
                   : 0;
       break;
-    case os.linux:
+    case OS.linux:
       _size = (style == CornerType.beveled)
           ? 8
           : (style == CornerType.rounded)
@@ -1897,7 +1883,7 @@ OutlinedBorder _nButtonDefaultShape(BorderSide? borderSide, os operatingSystem,
                   ? 256
                   : 0;
       break;
-    case os.windows:
+    case OS.windows:
       _size = (style == CornerType.beveled)
           ? 14
           : (style == CornerType.rounded)

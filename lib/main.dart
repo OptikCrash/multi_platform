@@ -15,17 +15,17 @@ import 'widgets/buttons.dart';
 
 final mainIndexProvider =
     ChangeNotifierProvider<ScreenIndexProvider>((ref) => ScreenIndexProvider());
-final os operatingSystem = (kIsWeb)
-    ? os.web
+final OS operatingSystem = (kIsWeb)
+    ? OS.web
     : (Platform.isIOS)
-        ? os.ios
+        ? OS.ios
         : (Platform.isMacOS)
-            ? os.mac
+            ? OS.mac
             : (Platform.isLinux)
-                ? os.linux
+                ? OS.linux
                 : (Platform.isWindows)
-                    ? os.windows
-                    : os.android;
+                    ? OS.windows
+                    : OS.android;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,10 +39,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: Purple.lightTheme,
-        darkTheme: Purple.darkTheme,
-        // theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
-        // darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
+        // theme: Purple.lightTheme,
+        // darkTheme: Purple.darkTheme,
+        theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
+        darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
         home: const Main());
   }
 }
@@ -60,17 +60,17 @@ class _MainState extends ConsumerState<Main> {
 
   get _selectScaffold {
     switch (operatingSystem) {
-      case os.mac:
+      case OS.mac:
         return _macScaffold;
-      case os.linux:
+      case OS.linux:
         return _linuxScaffold;
-      case os.windows:
+      case OS.windows:
         return _windowsScaffold;
-      case os.web:
+      case OS.web:
         return _webScaffold;
-      case os.ios:
+      case OS.ios:
         return _iosScaffold;
-      case os.android:
+      case OS.android:
         return _androidScaffold;
     }
   }
