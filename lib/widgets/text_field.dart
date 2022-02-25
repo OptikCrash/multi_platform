@@ -427,19 +427,28 @@ class _NTextFieldState extends State<NTextField> {
                         : _webField;
   }
 
+  get _iosFillColor =>
+      widget.fillColor ??
+      Theme.of(context)
+          .cupertinoOverrideTheme
+          ?.primaryColor
+          ?.withOpacity(0.1) ??
+      Theme.of(context).inputDecorationTheme.fillColor ??
+      Theme.of(context).colorScheme.onSurface.withOpacity(0.05);
+
   get _iosSuffix {
     if ((widget.suffixText == null || widget.suffixText?.isEmpty == true) &&
         widget.suffixIcon == null) {
       return Container();
     } else if (widget.suffixIcon != null) {
-      return Flexible(
-          flex: 1,
+      return SizedBox(
+          width: 36,
           child: Icon(widget.suffixIcon!,
               color: widget.suffixIconColor ??
                   Theme.of(context).colorScheme.primary));
     } else {
-      return Flexible(
-        flex: 1,
+      return SizedBox(
+        width: 120,
         child: Text(widget.suffixText ?? '',
             style: widget.suffixStyle ??
                 TextStyle(
@@ -457,9 +466,7 @@ class _NTextFieldState extends State<NTextField> {
 
   get _iosDecoration => widget.isOutlined
       ? BoxDecoration(
-          color: widget.filled == true
-              ? widget.fillColor ?? Theme.of(context).colorScheme.surface
-              : Colors.transparent,
+          color: widget.filled == true ? _iosFillColor : Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(5.0)),
           border: Border(
               top: _iosBorderSide,
@@ -468,7 +475,7 @@ class _NTextFieldState extends State<NTextField> {
               right: _iosBorderSide))
       : BoxDecoration(
           color: widget.filled == true
-              ? widget.fillColor ?? Theme.of(context).colorScheme.surface
+              ? widget.fillColor ?? _iosFillColor
               : Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(5.0)),
           border: Border(
@@ -508,7 +515,7 @@ class _NTextFieldState extends State<NTextField> {
         errorText: widget.errorText,
         errorStyle: widget.errorStyle ??
             TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.error,
                 fontFamily: fontFamily(OS.android)),
         errorMaxLines: widget.errorMaxLines,
         floatingLabelBehavior: widget.floatingLabelBehavior,
@@ -518,16 +525,16 @@ class _NTextFieldState extends State<NTextField> {
         prefix: Icon(widget.prefixIcon,
             color: widget.prefixIconColor ??
                 Theme.of(context).colorScheme.onSurface),
-        prefixIconConstraints: BoxConstraints.tight(const Size(44, 44)),
+        prefixIconConstraints: BoxConstraints.tight(const Size(72, 72)),
         suffixIcon: Icon(widget.suffixIcon,
             color: widget.suffixIconColor ??
-                Theme.of(context).colorScheme.primary),
+                Theme.of(context).colorScheme.onSurface),
         suffixText: widget.suffixText,
         suffixStyle: widget.suffixStyle ??
             TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: fontFamily(OS.android)),
-        suffixIconConstraints: BoxConstraints.tight(const Size(44, 44)),
+        suffixIconConstraints: BoxConstraints.tight(const Size(72, 72)),
         counterText: widget.counterText,
         counterStyle: widget.counterStyle ??
             TextStyle(
@@ -675,14 +682,20 @@ class _NTextFieldState extends State<NTextField> {
                     fontFamily: fontFamily(OS.ios)))
         : null;
 
+    Widget? _icon = (widget.icon != null)
+        ? Icon(widget.icon,
+            color: widget.iconColor ?? Theme.of(context).colorScheme.primary)
+        : null;
+
     Widget? _prefixIcon = (widget.prefixIcon != null)
         ? Icon(widget.prefixIcon,
             color: widget.prefixIconColor ??
                 Theme.of(context).colorScheme.onSurface)
-        : null;
+        : (_icon != null)
+            ? _icon
+            : null;
 
     Widget? _prefix;
-    double _sizeDiff = 32.0;
 
     if (_prefixIcon != null && _label != null) {
       _prefix = SizedBox(
@@ -712,99 +725,57 @@ class _NTextFieldState extends State<NTextField> {
       _prefix = null;
     }
 
-    if (widget.suffixIcon != null) {
-      _sizeDiff += 44;
-    }
-    if (widget.suffixText != null) {
-      _sizeDiff += 120;
-    }
-    Widget? _icon = (widget.icon != null)
-        ? Icon(widget.icon,
-            color: widget.iconColor ?? Theme.of(context).colorScheme.primary)
-        : null;
-
     return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width - _sizeDiff,
-          child: CupertinoFormRow(
-            prefix: _icon,
-            child: CupertinoTextFormFieldRow(
-              decoration: _iosDecoration,
-              controller: widget.controller,
-              validator: widget.validator,
-              prefix: _prefix,
-              onSaved: widget.onSaved,
-              onChanged: widget.onChanged,
-              onTap: widget.onTap,
-              focusNode: widget.focusNode,
-              placeholder: widget.hintText,
-              placeholderStyle: widget.hintStyle,
-              keyboardType: widget.keyboardType,
-              textInputAction: widget.textInputAction,
-              textCapitalization: widget.textCapitalization,
-              style: widget.style ??
-                  TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              strutStyle: widget.strutStyle,
-              textAlign: widget.textAlign,
-              textAlignVertical: widget.textAlignVertical,
-              textDirection: widget.textDirection,
-              readOnly: widget.readOnly,
-              toolbarOptions: widget.toolbarOptions,
-              showCursor: widget.showCursor,
-              autofocus: widget.autofocus,
-              obscuringCharacter: widget.obscuringCharacter,
-              obscureText: widget.obscureText,
-              autocorrect: widget.autocorrect,
-              smartDashesType: widget.smartDashesType,
-              smartQuotesType: widget.smartQuotesType,
-              enableSuggestions: widget.enableSuggestions,
-              maxLines: widget.maxLines,
-              minLines: widget.minLines,
-              expands: widget.expands,
-              maxLength: widget.maxLength,
-              onEditingComplete: widget.onEditingComplete,
-              inputFormatters: widget.inputFormatters,
-              enabled: widget.enabled,
-              cursorWidth: widget.cursorWidth,
-              cursorHeight: widget.cursorHeight,
-              cursorColor: widget.cursorColor,
-              keyboardAppearance: widget.keyboardAppearance,
-              scrollPadding: widget.scrollPadding,
-              enableInteractiveSelection: widget.enableInteractiveSelection,
-              selectionControls: widget.selectionControls,
-              scrollPhysics: widget.scrollPhysics,
-              autofillHints: widget.autofillHints,
-            ),
-            helper: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (widget.helperText?.isNotEmpty == true)
-                  Text(widget.helperText!,
-                      style: widget.helperStyle ??
-                          TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurface),
-                      maxLines: widget.helperMaxLines ??
-                          Theme.of(context)
-                              .inputDecorationTheme
-                              .helperMaxLines),
-                Expanded(child: Container()),
-                if (widget.counterText?.isNotEmpty == true)
-                  Text(
-                    widget.counterText!,
-                    style: widget.counterStyle ??
-                        TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.onSurface),
-                  )
-              ],
-            ),
-            error: (widget.errorText?.isNotEmpty == true)
-                ? Text(widget.errorText!,
-                    style: widget.errorStyle, maxLines: widget.errorMaxLines)
-                : null,
+        Expanded(
+          child: CupertinoTextFormFieldRow(
+            decoration: _iosDecoration,
+            controller: widget.controller,
+            validator: widget.validator,
+            prefix: _prefix,
+            onSaved: widget.onSaved,
+            onChanged: widget.onChanged,
+            onTap: widget.onTap,
+            focusNode: widget.focusNode,
+            placeholder: widget.hintText,
+            placeholderStyle: widget.hintStyle,
+            keyboardType: widget.keyboardType,
+            textInputAction: widget.textInputAction,
+            textCapitalization: widget.textCapitalization,
+            style: widget.style ??
+                TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            strutStyle: widget.strutStyle,
+            textAlign: widget.textAlign,
+            textAlignVertical: widget.textAlignVertical,
+            textDirection: widget.textDirection,
+            readOnly: widget.readOnly,
+            toolbarOptions: widget.toolbarOptions,
+            showCursor: widget.showCursor,
+            autofocus: widget.autofocus,
+            obscuringCharacter: widget.obscuringCharacter,
+            obscureText: widget.obscureText,
+            autocorrect: widget.autocorrect,
+            smartDashesType: widget.smartDashesType,
+            smartQuotesType: widget.smartQuotesType,
+            enableSuggestions: widget.enableSuggestions,
+            maxLines: widget.maxLines,
+            minLines: widget.minLines,
+            expands: widget.expands,
+            maxLength: widget.maxLength,
+            onEditingComplete: widget.onEditingComplete,
+            inputFormatters: widget.inputFormatters,
+            enabled: widget.enabled,
+            cursorWidth: widget.cursorWidth,
+            cursorHeight: widget.cursorHeight,
+            cursorColor: widget.cursorColor,
+            keyboardAppearance: widget.keyboardAppearance,
+            scrollPadding: widget.scrollPadding,
+            enableInteractiveSelection: widget.enableInteractiveSelection,
+            selectionControls: widget.selectionControls,
+            scrollPhysics: widget.scrollPhysics,
+            autofillHints: widget.autofillHints,
           ),
         ),
         _iosSuffix
@@ -880,7 +851,7 @@ class NTextFieldOutlined extends NTextField {
     String? counterText,
     Widget? counter,
     TextStyle? counterStyle,
-    bool? filled = true,
+    bool? filled,
     Color? fillColor,
     Color? focusColor,
     Color? hoverColor,
@@ -950,7 +921,7 @@ class NTextFieldOutlined extends NTextField {
           suffixIconColor: suffixIconColor,
           counterText: counterText,
           counterStyle: counterStyle,
-          filled: filled,
+          filled: filled ?? true,
           fillColor: fillColor,
           focusColor: focusColor,
           hoverColor: hoverColor,

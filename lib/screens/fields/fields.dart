@@ -6,9 +6,16 @@ import 'package:multi_platform/widgets/text_field.dart';
 
 import '../../main.dart';
 
-class FieldsScreen extends StatelessWidget {
+class FieldsScreen extends StatefulWidget {
   const FieldsScreen({Key? key}) : super(key: key);
   final String fields = 'Fields.';
+
+  @override
+  _FieldsScreenState createState() => _FieldsScreenState();
+}
+
+class _FieldsScreenState extends State<FieldsScreen> {
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +26,7 @@ class FieldsScreen extends StatelessWidget {
       case OS.web:
       case OS.ios:
       case OS.android:
-        return _androidFields(context);
+        return Form(key: _formKey, child: _androidFields(context));
     }
   }
 
@@ -33,7 +40,7 @@ class FieldsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              fields,
+              widget.fields,
               style:
                   Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
               textAlign: TextAlign.center,
@@ -66,10 +73,37 @@ class FieldsScreen extends StatelessWidget {
                     ),
                     color: Theme.of(context).colorScheme.primary,
                   ),
+                  NTextField(
+                    hintText: 'hint text',
+                    labelText: 'default',
+                    useMaterial: true,
+                    validator: (value) =>
+                        (value?.isEmpty == true) ? 'empty' : null,
+                  ),
+                  NTextField(
+                    filled: true,
+                    hintText: 'hint text',
+                    labelText: 'default filled',
+                    useMaterial: true,
+                    suffixIcon: Icons.ac_unit,
+                    validator: (value) =>
+                        (value?.isEmpty == true) ? 'empty' : null,
+                  ),
                   NTextField.outlined(
                     hintText: 'hint text',
-                    labelText: 'user name',
+                    labelText: 'outlined default',
                     useMaterial: true,
+                    validator: (value) =>
+                        (value?.isEmpty == true) ? 'empty' : null,
+                  ),
+                  NTextField.outlined(
+                    hintText: 'hint text',
+                    labelText: 'outlined not filled',
+                    filled: false,
+                    useMaterial: true,
+                    suffixIcon: Icons.ac_unit,
+                    validator: (value) =>
+                        (value?.isEmpty == true) ? 'empty' : null,
                   ),
                 ],
               ),
@@ -79,15 +113,43 @@ class FieldsScreen extends StatelessWidget {
               header: Text('iOS form',
                   style: Theme.of(context).textTheme.headline4),
               children: [
+                NTextField(
+                  hintText: 'hint text',
+                  labelText: 'default',
+                  useCupertino: true,
+                  validator: (value) =>
+                      (value?.isEmpty == true) ? 'empty' : null,
+                ),
+                NTextField(
+                  hintText: 'hint text',
+                  labelText: 'default filled',
+                  useCupertino: true,
+                  filled: true,
+                  suffixIcon: Icons.ac_unit,
+                  validator: (value) =>
+                      (value?.isEmpty == true) ? 'empty' : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            CupertinoFormSection.insetGrouped(
+              header: const Text('iOS form inset grouped'),
+              children: [
                 NTextField.outlined(
                   hintText: 'hint text',
-                  labelText: 'user name',
+                  labelText: 'outlined default',
                   useCupertino: true,
+                  validator: (value) =>
+                      (value?.isEmpty == true) ? 'empty' : null,
                 ),
                 NTextField.outlined(
                   hintText: 'hint text',
+                  labelText: 'outlined not filled',
+                  filled: false,
                   useCupertino: true,
                   suffixIcon: Icons.ac_unit,
+                  validator: (value) =>
+                      (value?.isEmpty == true) ? 'empty' : null,
                 ),
               ],
             ),
@@ -96,23 +158,22 @@ class FieldsScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                NButton(onPressed: () {}, child: const Text('Clear')),
-                NButton.filled(onPressed: () {}, child: const Text('Submit'))
+                NButton(
+                    onPressed: () {
+                      final formState = _formKey.currentState;
+                      formState?.reset();
+                      setState(() {});
+                    },
+                    child: const Text('Clear')),
+                NButton.filled(
+                    onPressed: () {
+                      final formState = _formKey.currentState;
+                      if (formState?.validate() == false) {}
+                      setState(() {});
+                    },
+                    child: const Text('Submit'))
               ],
             ),
-            CupertinoFormSection.insetGrouped(
-              header: const Text('Delete me!'),
-              children: [
-                CupertinoTextFormFieldRow(),
-                CupertinoTextFormFieldRow(
-                  prefix: const Icon(CupertinoIcons.book),
-                  placeholder: 'stuff',
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: Colors.blue),
-                ),
-              ],
-            )
           ],
         ),
       ),
