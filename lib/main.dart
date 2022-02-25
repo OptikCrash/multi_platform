@@ -39,10 +39,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        // theme: Purple.lightTheme,
-        // darkTheme: Purple.darkTheme,
-        theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
-        darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
+        theme: Purple.lightTheme,
+        darkTheme: Purple.darkTheme,
+        // theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
+        // darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
         home: const Main());
   }
 }

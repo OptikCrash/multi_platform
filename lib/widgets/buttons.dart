@@ -72,7 +72,8 @@ class NButton extends ButtonStyleButton {
           clipBehavior: clipBehavior,
           child: child,
         );
-
+  //endregion
+  //region Factory functions
   factory NButton.icon({
     Key? key,
     required Icon icon,
@@ -299,7 +300,6 @@ class NButton extends ButtonStyleButton {
         corner: corner,
         iconPlacement: iconPlacement,
       );
-
   //endregion
   //region properties
   final EdgeInsetsGeometry? padding;
