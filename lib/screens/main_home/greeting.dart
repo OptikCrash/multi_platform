@@ -28,11 +28,13 @@ class GreetingScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            greeting,
-            style:
-                Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
-            textAlign: TextAlign.center,
+          Expanded(
+            child: Text(
+              greeting,
+              style:
+                  Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

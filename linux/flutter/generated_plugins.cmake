@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_acrylic
+  native_context_menu
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

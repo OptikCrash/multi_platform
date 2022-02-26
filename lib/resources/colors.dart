@@ -32,7 +32,7 @@ class RoyalColors {
             primary: royalPurpleA200,
             onPrimary: Colors.white,
             primaryContainer: midnightA100,
-            onPrimaryContainer: Colors.black,
+            onPrimaryContainer: Colors.white,
             secondary: maroonA200,
             onSecondary: Colors.white,
             secondaryContainer: royalPurpleA700,
@@ -46,11 +46,11 @@ class RoyalColors {
             errorContainer: materialYellow700,
             onErrorContainer: Colors.red,
             background: maroon100,
-            onBackground: Colors.black,
+            onBackground: Colors.white,
             surface: midnight100,
-            onSurface: Colors.black,
+            onSurface: Colors.white,
             surfaceVariant: royalPurple100,
-            onSurfaceVariant: Colors.black,
+            onSurfaceVariant: Colors.white,
             outline: maroon,
           );
 

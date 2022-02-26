@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:multi_platform/resources/theme/purple_theme.dart';
 import 'package:multi_platform/screens/buttons/buttons.dart';
 import 'package:multi_platform/screens/fields/fields.dart';
@@ -78,68 +79,139 @@ class _MainState extends ConsumerState<Main> {
   get _index =>
       ref.watch(mainIndexProvider.select((provider) => provider.currentIndex));
   get _macScaffold => OrientationBuilder(
-      builder: (context, orientation) => orientation == Orientation.portrait
-          ? CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(
-                middle: _title(_index),
-              ),
-              child: CupertinoTabScaffold(
-                  tabBar: CupertinoTabBar(
-                    items: const [
-                      BottomNavigationBarItem(
-                          icon: Icon(CupertinoIcons.house_fill),
-                          label: 'home',
-                          activeIcon: Icon(CupertinoIcons.house),
-                          tooltip: 'home'),
-                      BottomNavigationBarItem(
-                          icon: Icon(CupertinoIcons.person_fill),
-                          label: 'buttons',
-                          activeIcon: Icon(CupertinoIcons.person),
-                          tooltip: 'buttons tab'),
-                      BottomNavigationBarItem(
-                          icon: Icon(CupertinoIcons.settings_solid),
-                          label: 'fields',
-                          activeIcon: Icon(CupertinoIcons.settings),
-                          tooltip: 'fields tab')
-                    ],
-                    onTap: _navigate,
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    backgroundColor: Theme.of(context)
-                            .cupertinoOverrideTheme
-                            ?.barBackgroundColor ??
-                        Colors.pink,
+        builder: (context, orientation) {
+          return orientation != Orientation.landscape
+              ? CupertinoPageScaffold(
+                  navigationBar: CupertinoNavigationBar(
+                    middle: _title(_index),
                   ),
-                  tabBuilder: (context, index) => _body(index)),
-            )
-          : CupertinoPageScaffold(
-              child: CupertinoTabScaffold(
-                  tabBar: CupertinoTabBar(
-                    items: const [
-                      BottomNavigationBarItem(
-                          icon: Icon(CupertinoIcons.house_fill),
-                          label: 'home',
-                          activeIcon: Icon(CupertinoIcons.house),
-                          tooltip: 'home'),
-                      BottomNavigationBarItem(
-                          icon: Icon(CupertinoIcons.person_fill),
-                          label: 'buttons',
-                          activeIcon: Icon(CupertinoIcons.person),
-                          tooltip: 'buttons tab'),
-                      BottomNavigationBarItem(
-                          icon: Icon(CupertinoIcons.settings_solid),
-                          label: 'fields',
-                          activeIcon: Icon(CupertinoIcons.settings),
-                          tooltip: 'fields tab')
-                    ],
-                    onTap: _navigate,
-                    activeColor: Theme.of(context).colorScheme.secondary,
-                    backgroundColor: Theme.of(context)
-                            .cupertinoOverrideTheme
-                            ?.barBackgroundColor ??
-                        Colors.pink,
+                  child: CupertinoTabScaffold(
+                    tabBar: CupertinoTabBar(
+                      items: const [
+                        BottomNavigationBarItem(
+                            icon: Icon(CupertinoIcons.house_fill),
+                            label: 'home',
+                            activeIcon: Icon(CupertinoIcons.house),
+                            tooltip: 'home'),
+                        BottomNavigationBarItem(
+                            icon: Icon(CupertinoIcons.person_fill),
+                            label: 'buttons',
+                            activeIcon: Icon(CupertinoIcons.person),
+                            tooltip: 'buttons tab'),
+                        BottomNavigationBarItem(
+                            icon: Icon(CupertinoIcons.settings_solid),
+                            label: 'fields',
+                            activeIcon: Icon(CupertinoIcons.settings),
+                            tooltip: 'fields tab')
+                      ],
+                      onTap: _navigate,
+                      activeColor: Theme.of(context).colorScheme.secondary,
+                      backgroundColor: Theme.of(context)
+                              .cupertinoOverrideTheme
+                              ?.barBackgroundColor ??
+                          Colors.pink,
+                    ),
+                    tabBuilder: (context, i) => (_index == 0)
+                        ? const GreetingScreen()
+                        : (_index == 1)
+                            ? const ButtonsScreen()
+                            : FieldsScreen(orientation: Orientation.landscape),
                   ),
-                  tabBuilder: (context, index) => _body(index)),
-            ));
+                )
+              : MacosTheme(
+                  data: MacosTheme.of(context),
+                  child: MacosWindow(
+                    child: Builder(
+                      builder: (BuildContext context) => CupertinoTabView(
+                        builder: (BuildContext context) => MacosScaffold(
+                          titleBar: TitleBar(
+                            title: _title(_index),
+                            leading: MacosIconButton(
+                                icon: (MacosWindowScope.of(context)
+                                        .isSidebarShown)
+                                    ? Icon(
+                                        CupertinoIcons.back,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      )
+                                    : Icon(
+                                        CupertinoIcons.forward,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                onPressed: () => _toggle(context)),
+                          ),
+                          children: [
+                            ContentArea(
+                              builder: (BuildContext context,
+                                      ScrollController scrollController) =>
+                                  _body(_index),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    sidebar: Sidebar(
+                        minWidth: 0,
+                        startWidth: 256,
+                        builder: (BuildContext context,
+                                ScrollController scrollController) =>
+                            SidebarItems(
+                              selectedColor: Theme.of(context).primaryColor,
+                              currentIndex: _index,
+                              onChanged: _navigate,
+                              items: [
+                                SidebarItem(
+                                    leading: (_index == 0)
+                                        ? Icon(
+                                            CupertinoIcons.house,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          )
+                                        : Icon(CupertinoIcons.house_fill,
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                    label: const Text('home'),
+                                    semanticLabel: 'home'),
+                                SidebarItem(
+                                    leading: (_index == 1)
+                                        ? Icon(
+                                            CupertinoIcons.person,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          )
+                                        : Icon(CupertinoIcons.person_fill,
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                    label: const Text('buttons'),
+                                    semanticLabel: 'buttons tab'),
+                                SidebarItem(
+                                    leading: (_index == 2)
+                                        ? Icon(
+                                            CupertinoIcons.settings_solid,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          )
+                                        : Icon(CupertinoIcons.settings,
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                    label: const Text('fields'),
+                                    semanticLabel: 'fields tab')
+                              ],
+                            ),
+                        bottom: Text(
+                          'bottom',
+                          style: Theme.of(context).textTheme.headline4,
+                        )),
+                  ),
+                );
+        },
+      );
   get _linuxScaffold => Container();
   get _windowsScaffold => Container();
   get _webScaffold => Container();
@@ -182,7 +254,7 @@ class _MainState extends ConsumerState<Main> {
       );
 
   _navigate(int index) {
-    ref.read(mainIndexProvider).advanceToIndex(index);
+    setState(() => ref.read(mainIndexProvider).advanceToIndex(index));
   }
 
   Widget _body(int currentIndex) {
@@ -190,11 +262,13 @@ class _MainState extends ConsumerState<Main> {
       case 1:
         return const ButtonsScreen();
       case 2:
-        return const FieldsScreen();
+        return FieldsScreen(orientation: Orientation.portrait);
       default:
         return const GreetingScreen();
     }
   }
+
+  _toggle(BuildContext context) => MacosWindowScope.of(context).toggleSidebar();
 
   _bottomNav(int currentIndex) => BottomNavigationBar(
         items: const [
@@ -231,6 +305,7 @@ _appBar(int currentIndex) => AppBar(
         )
       ],
     );
+
 _title(int currentIndex) {
   switch (currentIndex) {
     case 1:
