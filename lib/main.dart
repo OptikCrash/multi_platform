@@ -38,13 +38,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: Purple.lightTheme,
-        darkTheme: Purple.darkTheme,
-        // theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
-        // darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
-        home: const Main());
+    return !(operatingSystem == OS.mac)
+        ? MacosApp(
+            debugShowCheckedModeBanner: false,
+            theme: MacosThemeData.light(),
+            darkTheme: MacosThemeData.dark(),
+            home: const Main())
+        : MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: Purple.lightTheme,
+            darkTheme: Purple.darkTheme,
+            // theme: ThemeData.light().copyWith(primaryColor: Colors.blue),
+            // darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink),
+            home: const Main());
   }
 }
 
@@ -219,7 +225,7 @@ class _MainState extends ConsumerState<Main> {
         },
       );
   get _linuxScaffold => Container();
-  get _windowsScaffold => Container();
+  get _windowsScaffold => _macScaffold;
   get _webScaffold => Container();
   get _iosScaffold => CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
