@@ -21,20 +21,18 @@ class GreetingScreen extends StatelessWidget {
   }
 
   Widget _androidGreeting(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Text(
-              greeting,
-              style:
-                  Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
-              textAlign: TextAlign.center,
-            ),
+          Text(
+            greeting,
+            style:
+                Theme.of(context).textTheme.headline1?.copyWith(fontSize: 72),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

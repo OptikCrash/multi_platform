@@ -145,9 +145,15 @@ class _MainState extends ConsumerState<Main> {
                           ),
                           children: [
                             ContentArea(
+                              minWidth: 300,
                               builder: (BuildContext context,
                                       ScrollController scrollController) =>
-                                  _body(_index),
+                                  CustomScrollView(
+                                controller: scrollController,
+                                slivers: [
+                                  SliverToBoxAdapter(child: _body(_index))
+                                ],
+                              ),
                             )
                           ],
                         ),
