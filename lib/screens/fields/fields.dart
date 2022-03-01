@@ -8,7 +8,7 @@ import '../../main.dart';
 
 class FieldsScreen extends StatefulWidget {
   FieldsScreen({Key? key, required this.orientation}) : super(key: key);
-  final formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey();
   final String fields = 'Fields.';
   final Orientation orientation;
 
@@ -19,7 +19,7 @@ class FieldsScreen extends StatefulWidget {
 class _FieldsScreenState extends State<FieldsScreen> {
   @override
   Widget build(BuildContext context) {
-    Widget _androidCard = Card(
+    var _androidCard = Card(
       elevation: 6,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -39,26 +39,26 @@ class _FieldsScreenState extends State<FieldsScreen> {
           NTextField(
             hintText: 'hint text',
             labelText: 'default',
-            useFluent: true,
+            useMaterial: true,
             validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
           ),
           NTextField.filled(
             hintText: 'hint text',
             labelText: 'default filled',
-            useFluent: true,
+            useMaterial: true,
             suffixIcon: Icons.ac_unit,
             validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
           ),
           NTextField.outlined(
             hintText: 'hint text',
             labelText: 'outlined default',
-            useFluent: true,
+            useMaterial: true,
             validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
           ),
           NTextField.hollow(
             hintText: 'hint text',
             labelText: 'outlined not filled',
-            useFluent: true,
+            useMaterial: true,
             controller: TextEditingController(),
             hasClearButton: true,
             validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
@@ -66,7 +66,7 @@ class _FieldsScreenState extends State<FieldsScreen> {
         ],
       ),
     );
-    Widget _cupertinoSection = CupertinoFormSection(
+    var _cupertinoSection = CupertinoFormSection(
       header: Text('iOS form',
           style: Theme.of(context)
               .textTheme
@@ -88,7 +88,7 @@ class _FieldsScreenState extends State<FieldsScreen> {
         ),
       ],
     );
-    Widget _cupertinoSectionInset = CupertinoFormSection.insetGrouped(
+    var _cupertinoSectionInset = CupertinoFormSection.insetGrouped(
       header: Text(
         'iOS form inset grouped',
         style: Theme.of(context)
@@ -113,7 +113,7 @@ class _FieldsScreenState extends State<FieldsScreen> {
         ),
       ],
     );
-    Widget _windowsSection = Container(
+    var _windowsSection = Container(
         color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
         padding: const EdgeInsets.only(top: 16),
         child: Column(
@@ -162,7 +162,7 @@ class _FieldsScreenState extends State<FieldsScreen> {
             ),
           ],
         ));
-    Widget _linuxSection = Card(
+    var _linuxSection = Card(
       elevation: 5,
       child: Padding(
           padding: const EdgeInsets.only(top: 16),
@@ -186,7 +186,7 @@ class _FieldsScreenState extends State<FieldsScreen> {
                 child: NTextField(
                   hintText: 'hint text',
                   labelText: 'default',
-                  useFluent: true,
+                  useLinux: true,
                   validator: (value) =>
                       (value?.isEmpty == true) ? 'empty' : null,
                 ),
@@ -194,20 +194,20 @@ class _FieldsScreenState extends State<FieldsScreen> {
               NTextField.filled(
                 hintText: 'hint text',
                 labelText: 'default filled',
-                useFluent: true,
+                useLinux: true,
                 suffixIcon: Icons.ac_unit,
                 validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
               ),
               NTextField.outlined(
                 hintText: 'hint text',
                 labelText: 'outlined default',
-                useFluent: true,
+                useLinux: true,
                 validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
               ),
               NTextField.hollow(
                 hintText: 'hint text',
                 labelText: 'outlined not filled',
-                useFluent: true,
+                useLinux: true,
                 controller: TextEditingController(),
                 hasClearButton: true,
                 validator: (value) => (value?.isEmpty == true) ? 'empty' : null,
@@ -215,7 +215,7 @@ class _FieldsScreenState extends State<FieldsScreen> {
             ],
           )),
     );
-    Widget _clearOrValidate = Row(
+    var _clearOrValidate = Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -337,9 +337,13 @@ class _FieldsScreenState extends State<FieldsScreen> {
       case OS.mac:
         return Form(key: widget.formKey, child: _desktopFields(context));
       case OS.linux:
+        return Form(key: widget.formKey, child: _desktopFields(context));
       case OS.windows:
+        return Form(key: widget.formKey, child: _desktopFields(context));
       case OS.web:
+        return Form(key: widget.formKey, child: _desktopFields(context));
       case OS.ios:
+        return Form(key: widget.formKey, child: _mobileFields(context));
       case OS.android:
       default:
         return Form(key: widget.formKey, child: _mobileFields(context));

@@ -369,29 +369,31 @@ class NButton extends ButtonStyleButton {
     AlignmentGeometry? alignment,
     InteractiveInkFeatureFactory? splashFactory,
   }) {
-    final OS _operatingSystem = (useMaterial)
-        ? OS.android
-        : (useCupertino)
-            ? OS.ios
-            : (useCupertinoPro)
-                ? OS.mac
-                : (useFluent)
-                    ? OS.windows
-                    : (useLinux)
-                        ? OS.linux
-                        : (useWeb)
-                            ? OS.web
-                            : (Platform.isAndroid)
-                                ? OS.android
-                                : (Platform.isIOS)
-                                    ? OS.ios
-                                    : (Platform.isMacOS)
-                                        ? OS.mac
-                                        : (Platform.isWindows)
-                                            ? OS.windows
-                                            : (Platform.isLinux)
-                                                ? OS.linux
-                                                : OS.web;
+    final OS _operatingSystem = (kIsWeb)
+        ? OS.web
+        : (useMaterial)
+            ? OS.android
+            : (useCupertino)
+                ? OS.ios
+                : (useCupertinoPro)
+                    ? OS.mac
+                    : (useFluent)
+                        ? OS.windows
+                        : (useLinux)
+                            ? OS.linux
+                            : (useWeb)
+                                ? OS.web
+                                : (Platform.isAndroid)
+                                    ? OS.android
+                                    : (Platform.isIOS)
+                                        ? OS.ios
+                                        : (Platform.isMacOS)
+                                            ? OS.mac
+                                            : (Platform.isWindows)
+                                                ? OS.windows
+                                                : (Platform.isLinux)
+                                                    ? OS.linux
+                                                    : OS.web;
     final ButtonKind _buttonKind = (isFlat)
         ? ButtonKind.flat
         : (isFilled)
@@ -526,6 +528,7 @@ class NButton extends ButtonStyleButton {
                                             : (Platform.isLinux)
                                                 ? 'Cantarell'
                                                 : 'Arial';
+
     Color background = (_buttonKind == ButtonKind.filled)
         ? colorScheme.primary
         : (_buttonKind == ButtonKind.tinted)

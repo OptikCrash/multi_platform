@@ -12,6 +12,7 @@ import 'package:multi_platform/screens/main_home/greeting.dart';
 
 import 'enums.dart';
 import 'notifiers/screen_indexer.dart';
+import 'screens/numbers/numbers.dart';
 import 'widgets/buttons.dart';
 
 final mainIndexProvider =
@@ -108,7 +109,12 @@ class _MainState extends ConsumerState<Main> {
                             icon: Icon(CupertinoIcons.settings_solid),
                             label: 'fields',
                             activeIcon: Icon(CupertinoIcons.settings),
-                            tooltip: 'fields tab')
+                            tooltip: 'fields tab'),
+                        BottomNavigationBarItem(
+                            icon: Icon(CupertinoIcons.rocket),
+                            label: 'numbers',
+                            activeIcon: Icon(CupertinoIcons.rocket_fill),
+                            tooltip: 'numbers tab')
                       ],
                       onTap: _navigate,
                       activeColor: Theme.of(context).colorScheme.secondary,
@@ -120,8 +126,13 @@ class _MainState extends ConsumerState<Main> {
                     tabBuilder: (context, i) => (_index == 0)
                         ? const GreetingScreen()
                         : (_index == 1)
-                            ? const ButtonsScreen()
-                            : FieldsScreen(orientation: Orientation.landscape),
+                            ? const ButtonsScreen(
+                                orientation: Orientation.landscape)
+                            : (_index == 2)
+                                ? FieldsScreen(
+                                    orientation: Orientation.landscape)
+                                : NumberScreen(
+                                    orientation: Orientation.landscape),
                   ),
                 )
               : MacosTheme(
@@ -213,7 +224,20 @@ class _MainState extends ConsumerState<Main> {
                                             color:
                                                 Theme.of(context).primaryColor),
                                     label: const Text('fields'),
-                                    semanticLabel: 'fields tab')
+                                    semanticLabel: 'fields tab'),
+                                SidebarItem(
+                                    leading: (_index == 3)
+                                        ? Icon(
+                                            CupertinoIcons.rocket,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          )
+                                        : Icon(CupertinoIcons.rocket_fill,
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                    label: const Text('numbers'),
+                                    semanticLabel: 'numbers tab')
                               ],
                             ),
                         bottom: Text(
@@ -226,7 +250,7 @@ class _MainState extends ConsumerState<Main> {
       );
   get _linuxScaffold => Container();
   get _windowsScaffold => _macScaffold;
-  get _webScaffold => Container();
+  get _webScaffold => _windowsScaffold;
   get _iosScaffold => CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: _title(_index),
@@ -248,7 +272,12 @@ class _MainState extends ConsumerState<Main> {
                     icon: Icon(CupertinoIcons.settings_solid),
                     label: 'fields',
                     activeIcon: Icon(CupertinoIcons.settings),
-                    tooltip: 'fields tab')
+                    tooltip: 'fields tab'),
+                BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.rocket),
+                    label: 'numbers',
+                    activeIcon: Icon(CupertinoIcons.rocket_fill),
+                    tooltip: 'numbers tab')
               ],
               onTap: _navigate,
               activeColor: Theme.of(context).colorScheme.secondary,
@@ -272,9 +301,11 @@ class _MainState extends ConsumerState<Main> {
   Widget _body(int currentIndex) {
     switch (currentIndex) {
       case 1:
-        return const ButtonsScreen();
+        return const ButtonsScreen(orientation: Orientation.portrait);
       case 2:
         return FieldsScreen(orientation: Orientation.portrait);
+      case 3:
+        return NumberScreen(orientation: Orientation.portrait);
       default:
         return const GreetingScreen();
     }
@@ -298,7 +329,12 @@ class _MainState extends ConsumerState<Main> {
               icon: Icon(Icons.settings),
               label: 'fields',
               activeIcon: Icon(Icons.settings_outlined),
-              tooltip: 'fields tab')
+              tooltip: 'fields tab'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.rocket_launch),
+              label: 'numbers',
+              activeIcon: Icon(Icons.rocket_launch_outlined),
+              tooltip: 'numbers tab')
         ],
         onTap: _navigate,
         currentIndex: _index,
@@ -324,6 +360,8 @@ _title(int currentIndex) {
       return const Text('Buttons');
     case 2:
       return const Text('Fields');
+    case 3:
+      return const Text('Numbers');
     default:
       return const Text('Hello World!');
   }

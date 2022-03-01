@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -17,6 +18,12 @@ String fontFamily(OS operatingSystem) => (operatingSystem == OS.android)
                 : (operatingSystem == OS.linux)
                     ? 'Cantarell'
                     : 'Arial';
+
+BorderRadius _androidFieldRadius = const BorderRadius.all(Radius.circular(8.0));
+BorderRadius _windowsFieldRadius = const BorderRadius.all(Radius.circular(4.0));
+BorderRadius _linuxFieldRadius = const BorderRadius.all(Radius.circular(16.0));
+BorderRadius _iosFieldRadius = const BorderRadius.all(Radius.circular(5.0));
+BorderRadius _macFieldRadius = const BorderRadius.all(Radius.circular(10.0));
 
 class NTextField extends StatefulWidget {
   //region Constructor
@@ -112,7 +119,7 @@ class NTextField extends StatefulWidget {
     this.enabledBorder,
     this.semanticCounterText,
     this.alignLabelWithHint,
-    this.constraints = const BoxConstraints(maxHeight: 44),
+    this.constraints,
     this.hasClearButton = false,
     this.useMaterial = false,
     this.useCupertino = false,
@@ -244,7 +251,7 @@ class NTextField extends StatefulWidget {
   final bool useWeb;
   final bool isOutlined;
   //endregion
-  // region Functions
+  // region Factories
   factory NTextField.outlined({
     Key? key,
     TextEditingController? controller,
@@ -678,8 +685,11 @@ class NTextField extends StatefulWidget {
 }
 
 class _NTextFieldState extends State<NTextField> {
+  late Color _fillColor;
   @override
   Widget build(BuildContext context) {
+    // final FocusNode focusNode = Focus.of(context);
+    // final bool hasFocus = focusNode.hasFocus;
     final OS _operatingSystem = (widget.useMaterial)
         ? OS.android
         : (widget.useCupertino)
@@ -703,7 +713,38 @@ class _NTextFieldState extends State<NTextField> {
                                             : (Platform.isLinux)
                                                 ? OS.linux
                                                 : OS.web;
-
+    Color? _resolvedFillColor =
+        MaterialStateColor.resolveWith((states) => _NFieldBackground(
+              context,
+              enabledColor: (widget.fillColor != null)
+                  ? widget.fillColor
+                  : (_operatingSystem == OS.linux)
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.25)
+                      : (_operatingSystem == OS.windows)
+                          ? Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.5)
+                          : (_operatingSystem == OS.ios)
+                              ? Theme.of(context)
+                                      .cupertinoOverrideTheme
+                                      ?.primaryColor
+                                      ?.withOpacity(0.1) ??
+                                  Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor ??
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.01)
+                              : (_operatingSystem == OS.android)
+                                  ? Theme.of(context)
+                                      .inputDecorationTheme
+                                      .fillColor
+                                      ?.withOpacity(0.1)
+                                  : null,
+            ).resolve(states));
+    _fillColor = _resolvedFillColor;
     return (_operatingSystem == OS.android)
         ? _androidField
         : (_operatingSystem == OS.ios)
@@ -717,17 +758,11 @@ class _NTextFieldState extends State<NTextField> {
                         : _webField;
   }
 
-  get _winFillColor =>
-      widget.fillColor ?? Theme.of(context).colorScheme.surface;
-
-  get _iosFillColor =>
-      widget.fillColor ??
-      Theme.of(context)
-          .cupertinoOverrideTheme
-          ?.primaryColor
-          ?.withOpacity(0.1) ??
-      Theme.of(context).inputDecorationTheme.fillColor ??
-      Theme.of(context).colorScheme.onSurface.withOpacity(0.05);
+  @override
+  void dispose() {
+    widget.controller?.dispose();
+    super.dispose();
+  }
 
   get _iosSuffix {
     if (widget.hasClearButton) {
@@ -770,9 +805,9 @@ class _NTextFieldState extends State<NTextField> {
   get _iosDecoration => widget.isOutlined
       ? BoxDecoration(
           color: widget.filled == true
-              ? _iosFillColor
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              ? _fillColor
+              : Theme.of(context).colorScheme.surface.withOpacity(0.1),
+          borderRadius: _iosFieldRadius,
           border: Border(
               top: _iosBorderSide,
               bottom: _iosBorderSide,
@@ -780,215 +815,14 @@ class _NTextFieldState extends State<NTextField> {
               right: _iosBorderSide))
       : BoxDecoration(
           color: widget.filled == true
-              ? widget.fillColor ?? _iosFillColor
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              ? _fillColor
+              : Theme.of(context).colorScheme.surface.withOpacity(0.1),
+          borderRadius: _iosFieldRadius,
           border: Border(
               top: _iosBorderSide,
               bottom: _iosBorderSide,
               left: _iosBorderSide,
               right: _iosBorderSide));
-
-  get _androidDecoration => InputDecoration(
-        icon: (widget.icon != null)
-            ? Icon(widget.icon,
-                color:
-                    widget.iconColor ?? Theme.of(context).colorScheme.onSurface)
-            : null,
-        labelText: widget.labelText,
-        labelStyle: widget.labelStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: fontFamily(OS.android)),
-        floatingLabelStyle: widget.floatingLabelStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: fontFamily(OS.android)),
-        helperText: widget.helperText,
-        helperStyle: widget.helperStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: fontFamily(OS.android)),
-        helperMaxLines: widget.helperMaxLines,
-        hintText: widget.hintText,
-        hintStyle: widget.hintStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: fontFamily(OS.android)),
-        hintTextDirection: widget.hintTextDirection,
-        hintMaxLines: widget.hintMaxLines,
-        errorText: widget.errorText,
-        errorStyle: widget.errorStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontFamily: fontFamily(OS.android)),
-        errorMaxLines: widget.errorMaxLines,
-        floatingLabelBehavior: widget.floatingLabelBehavior,
-        isCollapsed: widget.isCollapsed,
-        isDense: widget.isDense,
-        contentPadding: widget.contentPadding,
-        prefix: Icon(widget.prefixIcon,
-            color: widget.prefixIconColor ??
-                Theme.of(context).colorScheme.onSurface),
-        prefixIconConstraints: BoxConstraints.tight(const Size(72, 72)),
-        suffixIcon: (widget.hasClearButton)
-            ? IconButton(
-                icon: Icon(
-                  Icons.clear,
-                  color: (widget.suffixIconColor != null)
-                      ? widget.suffixIconColor
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.5),
-                ),
-                onPressed: () => setState(() => widget.controller?.text = ''))
-            : Icon(widget.suffixIcon,
-                color: widget.suffixIconColor ??
-                    Theme.of(context).colorScheme.onSurface),
-        suffixText: widget.suffixText,
-        suffixStyle: widget.suffixStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: fontFamily(OS.android)),
-        suffixIconConstraints: BoxConstraints.tight(const Size(72, 72)),
-        counterText: widget.counterText,
-        counterStyle: widget.counterStyle ??
-            TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFamily: fontFamily(OS.android)),
-        filled: widget.filled,
-        fillColor: widget.fillColor,
-        focusColor: widget.focusColor,
-        hoverColor: widget.hoverColor,
-        errorBorder: (widget.isOutlined)
-            ? widget.errorBorder ??
-                OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).errorColor,
-                        width: 1,
-                        style: BorderStyle.solid))
-            : UnderlineInputBorder(
-                borderSide: BorderSide(
-                    color: Theme.of(context).errorColor,
-                    width: 1,
-                    style: BorderStyle.solid)),
-        focusedBorder: (widget.isOutlined)
-            ? widget.focusedBorder ??
-                OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor,
-                        width: 1,
-                        style: BorderStyle.solid))
-            : UnderlineInputBorder(
-                borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor,
-                    width: 1,
-                    style: BorderStyle.solid)),
-        focusedErrorBorder: (widget.isOutlined)
-            ? widget.focusedErrorBorder ??
-                OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color:
-                            widget.focusColor ?? Theme.of(context).focusColor,
-                        width: 1,
-                        style: BorderStyle.solid))
-            : UnderlineInputBorder(
-                borderSide: BorderSide(
-                    color: widget.focusColor ?? Theme.of(context).focusColor,
-                    width: 1,
-                    style: BorderStyle.solid)),
-        disabledBorder: (widget.isOutlined)
-            ? widget.disabledBorder ??
-                OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).disabledColor,
-                        width: 1,
-                        style: BorderStyle.solid))
-            : UnderlineInputBorder(
-                borderSide: BorderSide(
-                    color: Theme.of(context).disabledColor,
-                    width: 1,
-                    style: BorderStyle.solid)),
-        enabledBorder: (widget.isOutlined)
-            ? widget.enabledBorder ??
-                OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: widget.iconColor ??
-                            widget.prefixIconColor ??
-                            widget.suffixIconColor ??
-                            Theme.of(context).colorScheme.onSurface,
-                        width: 0.0,
-                        style: BorderStyle.solid))
-            : UnderlineInputBorder(
-                borderSide: BorderSide(
-                    color: widget.iconColor ??
-                        widget.prefixIconColor ??
-                        widget.suffixIconColor ??
-                        Theme.of(context).colorScheme.onSurface,
-                    width: 0.0,
-                    style: BorderStyle.solid)),
-        semanticCounterText: widget.semanticCounterText,
-        alignLabelWithHint: widget.alignLabelWithHint,
-        constraints: widget.constraints ?? const BoxConstraints(maxHeight: 44),
-      );
-
-  get _androidField => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: TextFormField(
-          key: widget.key,
-          controller: widget.controller,
-          initialValue: widget.initialValue,
-          focusNode: widget.focusNode,
-          decoration: _androidDecoration,
-          keyboardType: widget.keyboardType,
-          textCapitalization: widget.textCapitalization,
-          textInputAction: widget.textInputAction,
-          style: widget.style,
-          strutStyle: widget.strutStyle,
-          textDirection: widget.textDirection,
-          textAlign: widget.textAlign,
-          textAlignVertical: widget.textAlignVertical,
-          autofocus: widget.autofocus,
-          readOnly: widget.readOnly,
-          toolbarOptions: widget.toolbarOptions,
-          showCursor: widget.showCursor,
-          obscuringCharacter: widget.obscuringCharacter,
-          obscureText: widget.obscureText,
-          autocorrect: widget.autocorrect,
-          smartDashesType: widget.smartDashesType,
-          smartQuotesType: widget.smartQuotesType,
-          enableSuggestions: widget.enableSuggestions,
-          maxLengthEnforcement: widget.maxLengthEnforcement,
-          maxLines: widget.maxLines,
-          minLines: widget.minLines,
-          expands: widget.expands,
-          maxLength: widget.maxLength,
-          onChanged: widget.onChanged,
-          onTap: widget.onTap,
-          onEditingComplete: widget.onEditingComplete,
-          onFieldSubmitted: widget.onFieldSubmitted,
-          onSaved: widget.onSaved,
-          validator: widget.validator,
-          inputFormatters: widget.inputFormatters,
-          enabled: widget.enabled,
-          cursorWidth: widget.cursorWidth,
-          cursorHeight: widget.cursorHeight,
-          cursorRadius: widget.cursorRadius,
-          cursorColor: widget.cursorColor,
-          keyboardAppearance: widget.keyboardAppearance,
-          scrollPadding: widget.scrollPadding,
-          enableInteractiveSelection: widget.enableInteractiveSelection,
-          selectionControls: widget.selectionControls,
-          buildCounter: widget.buildCounter,
-          scrollPhysics: widget.scrollPhysics,
-          autofillHints: widget.autofillHints,
-          autovalidateMode: widget.autovalidateMode,
-          scrollController: widget.scrollController,
-          restorationId: widget.restorationId,
-          enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
-        ),
-      );
 
   get _iosField {
     Text? _label = (widget.labelText != null)
@@ -1102,6 +936,217 @@ class _NTextFieldState extends State<NTextField> {
 
   get _macField => _iosField;
 
+  get _androidDecoration => InputDecoration(
+        icon: (widget.icon != null)
+            ? Icon(widget.icon,
+                color:
+                    widget.iconColor ?? Theme.of(context).colorScheme.onSurface)
+            : null,
+        labelText: widget.labelText,
+        labelStyle: widget.labelStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: fontFamily(OS.android)),
+        floatingLabelStyle: widget.floatingLabelStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: fontFamily(OS.android)),
+        helperText: widget.helperText,
+        helperStyle: widget.helperStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: fontFamily(OS.android)),
+        helperMaxLines: widget.helperMaxLines,
+        hintText: widget.hintText,
+        hintStyle: widget.hintStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: fontFamily(OS.android)),
+        hintTextDirection: widget.hintTextDirection,
+        hintMaxLines: widget.hintMaxLines,
+        errorText: widget.errorText,
+        errorStyle: widget.errorStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontFamily: fontFamily(OS.android)),
+        errorMaxLines: widget.errorMaxLines,
+        floatingLabelBehavior: widget.floatingLabelBehavior,
+        isCollapsed: widget.isCollapsed,
+        isDense: widget.isDense ?? true,
+        contentPadding: widget.contentPadding,
+        prefix: Icon(widget.prefixIcon,
+            color: widget.prefixIconColor ??
+                Theme.of(context).colorScheme.onSurface),
+        prefixIconConstraints: BoxConstraints.tight(const Size(60, 36)),
+        suffixIcon: (widget.hasClearButton)
+            ? IconButton(
+                icon: Icon(
+                  Icons.clear,
+                  color: (widget.suffixIconColor != null)
+                      ? widget.suffixIconColor
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5),
+                ),
+                onPressed: () => setState(() => widget.controller?.text = ''))
+            : Icon(widget.suffixIcon,
+                color: widget.suffixIconColor ??
+                    Theme.of(context).colorScheme.onSurface),
+        suffixText: widget.suffixText,
+        suffixStyle: widget.suffixStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: fontFamily(OS.android)),
+        suffixIconConstraints: BoxConstraints.tight(const Size(60, 36)),
+        counterText: widget.counterText,
+        counterStyle: widget.counterStyle ??
+            TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: fontFamily(OS.android)),
+        filled: widget.filled,
+        fillColor: widget.fillColor,
+        focusColor: widget.focusColor,
+        hoverColor: widget.hoverColor,
+        errorBorder: (widget.isOutlined)
+            ? widget.errorBorder ??
+                OutlineInputBorder(
+                    borderRadius: _androidFieldRadius,
+                    borderSide: BorderSide(
+                        color: Theme.of(context).errorColor,
+                        width: 1,
+                        style: BorderStyle.solid))
+            : UnderlineInputBorder(
+                borderRadius: _androidFieldRadius,
+                borderSide: BorderSide(
+                    color: Theme.of(context).errorColor,
+                    width: 1,
+                    style: BorderStyle.solid)),
+        focusedBorder: (widget.isOutlined)
+            ? widget.focusedBorder ??
+                OutlineInputBorder(
+                    borderRadius: _androidFieldRadius,
+                    borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                        width: 1,
+                        style: BorderStyle.solid))
+            : UnderlineInputBorder(
+                borderRadius: _androidFieldRadius,
+                borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 1,
+                    style: BorderStyle.solid)),
+        focusedErrorBorder: (widget.isOutlined)
+            ? widget.focusedErrorBorder ??
+                OutlineInputBorder(
+                    borderRadius: _androidFieldRadius,
+                    borderSide: BorderSide(
+                        color:
+                            widget.focusColor ?? Theme.of(context).focusColor,
+                        width: 1,
+                        style: BorderStyle.solid))
+            : UnderlineInputBorder(
+                borderRadius: _androidFieldRadius,
+                borderSide: BorderSide(
+                    color: widget.focusColor ?? Theme.of(context).focusColor,
+                    width: 1,
+                    style: BorderStyle.solid)),
+        disabledBorder: (widget.isOutlined)
+            ? widget.disabledBorder ??
+                OutlineInputBorder(
+                    borderRadius: _androidFieldRadius,
+                    borderSide: BorderSide(
+                        color: Theme.of(context).disabledColor,
+                        width: 1,
+                        style: BorderStyle.solid))
+            : UnderlineInputBorder(
+                borderRadius: _androidFieldRadius,
+                borderSide: BorderSide(
+                    color: Theme.of(context).disabledColor,
+                    width: 1,
+                    style: BorderStyle.solid)),
+        enabledBorder: (widget.isOutlined)
+            ? widget.enabledBorder ??
+                OutlineInputBorder(
+                    borderRadius: _androidFieldRadius,
+                    borderSide: BorderSide(
+                        color: widget.iconColor ??
+                            widget.prefixIconColor ??
+                            widget.suffixIconColor ??
+                            Theme.of(context).colorScheme.onSurface,
+                        width: 0.0,
+                        style: BorderStyle.solid))
+            : UnderlineInputBorder(
+                borderRadius: _androidFieldRadius,
+                borderSide: BorderSide(
+                    color: widget.iconColor ??
+                        widget.prefixIconColor ??
+                        widget.suffixIconColor ??
+                        Theme.of(context).colorScheme.onSurface,
+                    width: 0.0,
+                    style: BorderStyle.solid)),
+        semanticCounterText: widget.semanticCounterText,
+        alignLabelWithHint: widget.alignLabelWithHint,
+        constraints: widget.constraints ?? const BoxConstraints(maxHeight: 96),
+      );
+
+  get _androidField => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: TextFormField(
+          key: widget.key,
+          controller: widget.controller,
+          initialValue: widget.initialValue,
+          focusNode: widget.focusNode,
+          decoration: _androidDecoration,
+          keyboardType: widget.keyboardType,
+          textCapitalization: widget.textCapitalization,
+          textInputAction: widget.textInputAction,
+          style: widget.style,
+          strutStyle: widget.strutStyle,
+          textDirection: widget.textDirection,
+          textAlign: widget.textAlign,
+          textAlignVertical: widget.textAlignVertical,
+          autofocus: widget.autofocus,
+          readOnly: widget.readOnly,
+          toolbarOptions: widget.toolbarOptions,
+          showCursor: widget.showCursor,
+          obscuringCharacter: widget.obscuringCharacter,
+          obscureText: widget.obscureText,
+          autocorrect: widget.autocorrect,
+          smartDashesType: widget.smartDashesType,
+          smartQuotesType: widget.smartQuotesType,
+          enableSuggestions: widget.enableSuggestions,
+          maxLengthEnforcement: widget.maxLengthEnforcement,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          expands: widget.expands,
+          maxLength: widget.maxLength,
+          onChanged: widget.onChanged,
+          onTap: widget.onTap,
+          onEditingComplete: widget.onEditingComplete,
+          onFieldSubmitted: widget.onFieldSubmitted,
+          onSaved: widget.onSaved,
+          validator: widget.validator,
+          inputFormatters: widget.inputFormatters,
+          enabled: widget.enabled,
+          cursorWidth: widget.cursorWidth,
+          cursorHeight: widget.cursorHeight,
+          cursorRadius: widget.cursorRadius,
+          cursorColor: widget.cursorColor,
+          keyboardAppearance: widget.keyboardAppearance,
+          scrollPadding: widget.scrollPadding,
+          enableInteractiveSelection: widget.enableInteractiveSelection,
+          selectionControls: widget.selectionControls,
+          buildCounter: widget.buildCounter,
+          scrollPhysics: widget.scrollPhysics,
+          autofillHints: widget.autofillHints,
+          autovalidateMode: widget.autovalidateMode,
+          scrollController: widget.scrollController,
+          restorationId: widget.restorationId,
+          enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
+        ),
+      );
+
   get _windowsDecoration => InputDecoration(
         icon: (widget.icon != null)
             ? Icon(widget.icon,
@@ -1138,12 +1183,12 @@ class _NTextFieldState extends State<NTextField> {
         errorMaxLines: widget.errorMaxLines,
         floatingLabelBehavior: widget.floatingLabelBehavior,
         isCollapsed: widget.isCollapsed,
-        isDense: widget.isDense,
+        isDense: true,
         contentPadding: widget.contentPadding,
         prefix: Icon(widget.prefixIcon,
             color: widget.prefixIconColor ??
                 Theme.of(context).colorScheme.onSurface),
-        prefixIconConstraints: BoxConstraints.tight(const Size(72, 72)),
+        prefixIconConstraints: BoxConstraints.tight(const Size(72, 36)),
         suffixIcon: (widget.hasClearButton)
             ? IconButton(
                 icon: Icon(
@@ -1164,24 +1209,26 @@ class _NTextFieldState extends State<NTextField> {
             TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: fontFamily(OS.android)),
-        suffixIconConstraints: BoxConstraints.tight(const Size(72, 72)),
+        suffixIconConstraints: BoxConstraints.tight(const Size(72, 36)),
         counterText: widget.counterText,
         counterStyle: widget.counterStyle ??
             TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: fontFamily(OS.android)),
         filled: widget.filled,
-        fillColor: _winFillColor,
+        fillColor: _fillColor,
         focusColor: widget.focusColor,
         hoverColor: widget.hoverColor,
         errorBorder: (widget.isOutlined)
             ? widget.errorBorder ??
                 OutlineInputBorder(
+                    borderRadius: _windowsFieldRadius,
                     borderSide: BorderSide(
                         color: Theme.of(context).errorColor,
                         width: 1,
                         style: BorderStyle.solid))
             : UnderlineInputBorder(
+                borderRadius: _windowsFieldRadius,
                 borderSide: BorderSide(
                     color: Theme.of(context).errorColor,
                     width: 1,
@@ -1189,24 +1236,28 @@ class _NTextFieldState extends State<NTextField> {
         focusedBorder: (widget.isOutlined)
             ? widget.focusedBorder ??
                 OutlineInputBorder(
+                    borderRadius: _windowsFieldRadius,
                     borderSide: BorderSide(
                         color: Theme.of(context).primaryColor,
-                        width: 1,
+                        width: 2,
                         style: BorderStyle.solid))
             : UnderlineInputBorder(
+                borderRadius: _windowsFieldRadius,
                 borderSide: BorderSide(
                     color: Theme.of(context).primaryColor,
-                    width: 1,
+                    width: 2,
                     style: BorderStyle.solid)),
         focusedErrorBorder: (widget.isOutlined)
             ? widget.focusedErrorBorder ??
                 OutlineInputBorder(
+                    borderRadius: _windowsFieldRadius,
                     borderSide: BorderSide(
                         color:
                             widget.focusColor ?? Theme.of(context).focusColor,
                         width: 1,
                         style: BorderStyle.solid))
             : UnderlineInputBorder(
+                borderRadius: _windowsFieldRadius,
                 borderSide: BorderSide(
                     color: widget.focusColor ?? Theme.of(context).focusColor,
                     width: 1,
@@ -1214,11 +1265,13 @@ class _NTextFieldState extends State<NTextField> {
         disabledBorder: (widget.isOutlined)
             ? widget.disabledBorder ??
                 OutlineInputBorder(
+                    borderRadius: _windowsFieldRadius,
                     borderSide: BorderSide(
                         color: Theme.of(context).disabledColor,
                         width: 1,
                         style: BorderStyle.solid))
             : UnderlineInputBorder(
+                borderRadius: _windowsFieldRadius,
                 borderSide: BorderSide(
                     color: Theme.of(context).disabledColor,
                     width: 1,
@@ -1226,6 +1279,7 @@ class _NTextFieldState extends State<NTextField> {
         enabledBorder: (widget.isOutlined)
             ? widget.enabledBorder ??
                 OutlineInputBorder(
+                    borderRadius: _windowsFieldRadius,
                     borderSide: BorderSide(
                         color: widget.iconColor ??
                             widget.prefixIconColor ??
@@ -1234,6 +1288,7 @@ class _NTextFieldState extends State<NTextField> {
                         width: 0.0,
                         style: BorderStyle.solid))
             : UnderlineInputBorder(
+                borderRadius: _windowsFieldRadius,
                 borderSide: BorderSide(
                     color: widget.iconColor ??
                         widget.prefixIconColor ??
@@ -1243,13 +1298,14 @@ class _NTextFieldState extends State<NTextField> {
                     style: BorderStyle.solid)),
         semanticCounterText: widget.semanticCounterText,
         alignLabelWithHint: widget.alignLabelWithHint,
-        constraints: widget.constraints ?? const BoxConstraints(maxHeight: 44),
+        constraints: widget.constraints ?? const BoxConstraints(maxHeight: 96),
       );
 
   get _windowsField => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Material(
-          elevation: 6,
+          borderRadius: _windowsFieldRadius,
+          elevation: (widget.isOutlined) ? 10 : 0,
           child: TextFormField(
             key: widget.key,
             controller: widget.controller,
@@ -1306,7 +1362,215 @@ class _NTextFieldState extends State<NTextField> {
         ),
       );
 
-  get _linuxField => Row();
+  get _linuxDecoration {
+    return InputDecoration(
+      icon: (widget.icon != null)
+          ? Icon(widget.icon,
+              color: widget.iconColor ?? Theme.of(context).colorScheme.primary)
+          : null,
+      labelText: widget.labelText,
+      labelStyle: widget.labelStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontFamily: fontFamily(OS.android)),
+      floatingLabelStyle: widget.floatingLabelStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontFamily: fontFamily(OS.android)),
+      helperText: widget.helperText,
+      helperStyle: widget.helperStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontFamily: fontFamily(OS.android)),
+      helperMaxLines: widget.helperMaxLines,
+      hintText: widget.hintText,
+      hintStyle: widget.hintStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontFamily: fontFamily(OS.android)),
+      hintTextDirection: widget.hintTextDirection,
+      hintMaxLines: widget.hintMaxLines,
+      errorText: widget.errorText,
+      errorStyle: widget.errorStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontFamily: fontFamily(OS.android)),
+      errorMaxLines: widget.errorMaxLines,
+      floatingLabelBehavior: widget.floatingLabelBehavior,
+      isCollapsed: widget.isCollapsed,
+      isDense: widget.isDense ?? true,
+      contentPadding: widget.contentPadding,
+      prefix: Icon(widget.prefixIcon,
+          color:
+              widget.prefixIconColor ?? Theme.of(context).colorScheme.primary),
+      prefixIconConstraints: BoxConstraints.tight(const Size(48, 36)),
+      suffixIcon: (widget.hasClearButton)
+          ? IconButton(
+              icon: Icon(
+                Icons.cancel_outlined,
+                color: (widget.suffixIconColor != null)
+                    ? widget.suffixIconColor
+                    : Theme.of(context).colorScheme.primary.withOpacity(0.75),
+              ),
+              onPressed: () => setState(() => widget.controller?.text = ''))
+          : Icon(widget.suffixIcon,
+              color: widget.suffixIconColor ??
+                  Theme.of(context).colorScheme.primary),
+      suffixText: widget.suffixText,
+      suffixStyle: widget.suffixStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontFamily: fontFamily(OS.android)),
+      suffixIconConstraints: BoxConstraints.tight(const Size(48, 36)),
+      counterText: widget.counterText,
+      counterStyle: widget.counterStyle ??
+          TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontFamily: fontFamily(OS.android)),
+      filled: widget.filled,
+      fillColor: _fillColor,
+      focusColor: widget.focusColor,
+      hoverColor: widget.hoverColor,
+      errorBorder: (widget.isOutlined)
+          ? widget.errorBorder ??
+              OutlineInputBorder(
+                  borderRadius: _linuxFieldRadius,
+                  borderSide: BorderSide(
+                      color: Theme.of(context).errorColor,
+                      width: 1,
+                      style: BorderStyle.solid))
+          : UnderlineInputBorder(
+              borderRadius: _linuxFieldRadius,
+              borderSide: BorderSide(
+                  color: Theme.of(context).errorColor,
+                  width: 1,
+                  style: BorderStyle.solid)),
+      focusedBorder: (widget.isOutlined)
+          ? widget.focusedBorder ??
+              OutlineInputBorder(
+                  borderRadius: _linuxFieldRadius,
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.secondary,
+                      width: 2.5,
+                      style: BorderStyle.solid))
+          : UnderlineInputBorder(
+              borderRadius: _linuxFieldRadius,
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.secondary,
+                  width: 2.5,
+                  style: BorderStyle.solid)),
+      focusedErrorBorder: (widget.isOutlined)
+          ? widget.focusedErrorBorder ??
+              OutlineInputBorder(
+                  borderRadius: _linuxFieldRadius,
+                  borderSide: BorderSide(
+                      color: widget.focusColor ??
+                          Theme.of(context).colorScheme.error,
+                      width: 2.5,
+                      style: BorderStyle.solid))
+          : UnderlineInputBorder(
+              borderRadius: _linuxFieldRadius,
+              borderSide: BorderSide(
+                  color:
+                      widget.focusColor ?? Theme.of(context).colorScheme.error,
+                  width: 2.5,
+                  style: BorderStyle.solid)),
+      disabledBorder: (widget.isOutlined)
+          ? widget.disabledBorder ??
+              OutlineInputBorder(
+                  borderRadius: _linuxFieldRadius,
+                  borderSide: BorderSide(
+                      color: Theme.of(context).disabledColor,
+                      width: 1,
+                      style: BorderStyle.solid))
+          : UnderlineInputBorder(
+              borderRadius: _linuxFieldRadius,
+              borderSide: BorderSide(
+                  color: Theme.of(context).disabledColor,
+                  width: 1,
+                  style: BorderStyle.solid)),
+      enabledBorder: (widget.isOutlined)
+          ? widget.enabledBorder ??
+              OutlineInputBorder(
+                  borderRadius: _linuxFieldRadius,
+                  borderSide: BorderSide(
+                      color: widget.iconColor ??
+                          widget.prefixIconColor ??
+                          widget.suffixIconColor ??
+                          Theme.of(context).colorScheme.primary,
+                      width: 0.0,
+                      style: BorderStyle.solid))
+          : UnderlineInputBorder(
+              borderRadius: _linuxFieldRadius,
+              borderSide: BorderSide(
+                  color: widget.iconColor ??
+                      widget.prefixIconColor ??
+                      widget.suffixIconColor ??
+                      Theme.of(context).colorScheme.primary,
+                  width: 0.0,
+                  style: BorderStyle.solid)),
+      semanticCounterText: widget.semanticCounterText,
+      alignLabelWithHint: widget.alignLabelWithHint,
+      constraints: widget.constraints ?? const BoxConstraints(maxHeight: 96),
+    );
+  }
+
+  get _linuxField => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: TextFormField(
+          key: widget.key,
+          controller: widget.controller,
+          initialValue: widget.initialValue,
+          focusNode: widget.focusNode,
+          decoration: _linuxDecoration,
+          keyboardType: widget.keyboardType,
+          textCapitalization: widget.textCapitalization,
+          textInputAction: widget.textInputAction,
+          style: widget.style,
+          strutStyle: widget.strutStyle,
+          textDirection: widget.textDirection,
+          textAlign: widget.textAlign,
+          textAlignVertical: widget.textAlignVertical,
+          autofocus: widget.autofocus,
+          readOnly: widget.readOnly,
+          toolbarOptions: widget.toolbarOptions,
+          showCursor: widget.showCursor,
+          obscuringCharacter: widget.obscuringCharacter,
+          obscureText: widget.obscureText,
+          autocorrect: widget.autocorrect,
+          smartDashesType: widget.smartDashesType,
+          smartQuotesType: widget.smartQuotesType,
+          enableSuggestions: widget.enableSuggestions,
+          maxLengthEnforcement: widget.maxLengthEnforcement,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          expands: widget.expands,
+          maxLength: widget.maxLength,
+          onChanged: widget.onChanged,
+          onTap: widget.onTap,
+          onEditingComplete: widget.onEditingComplete,
+          onFieldSubmitted: widget.onFieldSubmitted,
+          onSaved: widget.onSaved,
+          validator: widget.validator,
+          inputFormatters: widget.inputFormatters,
+          enabled: widget.enabled,
+          cursorWidth: widget.cursorWidth,
+          cursorHeight: widget.cursorHeight,
+          cursorRadius: widget.cursorRadius,
+          cursorColor: widget.cursorColor,
+          keyboardAppearance: widget.keyboardAppearance,
+          scrollPadding: widget.scrollPadding,
+          enableInteractiveSelection: widget.enableInteractiveSelection,
+          selectionControls: widget.selectionControls,
+          buildCounter: widget.buildCounter,
+          scrollPhysics: widget.scrollPhysics,
+          autofillHints: widget.autofillHints,
+          autovalidateMode: widget.autovalidateMode,
+          scrollController: widget.scrollController,
+          restorationId: widget.restorationId,
+          enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
+        ),
+      );
 
   get _webField => Row();
 }
@@ -1457,4 +1721,66 @@ class NTextFieldOutlined extends NTextField {
           useWeb: useWeb,
           isOutlined: true,
         );
+}
+
+@immutable
+class _NFieldBackground extends MaterialStateProperty<Color>
+    with Diagnosticable {
+  _NFieldBackground(
+    this.context, {
+    this.hoverColor,
+    this.focusColor,
+    this.pressedColor,
+    this.draggedColor,
+    this.selectedColor,
+    this.scrolledUnderColor,
+    this.disabledColor,
+    this.errorColor,
+    this.enabledColor,
+  });
+
+  final BuildContext context;
+  final Color? hoverColor;
+  final Color? focusColor;
+  final Color? pressedColor;
+  final Color? draggedColor;
+  final Color? selectedColor;
+  final Color? scrolledUnderColor;
+  final Color? disabledColor;
+  final Color? errorColor;
+  final Color? enabledColor;
+
+  @override
+  Color resolve(Set<MaterialState> states) {
+    Color fill;
+    if (states.contains(MaterialState.hovered)) {
+      fill = hoverColor ??
+          enabledColor?.withAlpha(125) ??
+          Theme.of(context).hoverColor;
+    } else if (states.contains(MaterialState.focused)) {
+      fill = focusColor ?? Theme.of(context).focusColor;
+    } else if (states.contains(MaterialState.pressed)) {
+      fill = pressedColor ??
+          Theme.of(context).colorScheme.onSurface.withOpacity(0.25);
+    } else if (states.contains(MaterialState.dragged)) {
+      fill = draggedColor ??
+          Theme.of(context).colorScheme.tertiary.withOpacity(0.25);
+    } else if (states.contains(MaterialState.selected)) {
+      fill = selectedColor ?? Theme.of(context).selectedRowColor;
+    } else if (states.contains(MaterialState.scrolledUnder)) {
+      fill = scrolledUnderColor?.withOpacity(0.1) ??
+          Theme.of(context).colorScheme.surface.withAlpha(125);
+    } else if (states.contains(MaterialState.disabled)) {
+      fill = disabledColor ??
+          Theme.of(context).colorScheme.onSurface.withOpacity(0.25);
+    } else if (states.contains(MaterialState.error)) {
+      fill = errorColor ??
+          Theme.of(context).colorScheme.errorContainer.withOpacity(0.25);
+    } else {
+      fill = enabledColor ??
+          Theme.of(context).inputDecorationTheme.fillColor ??
+          Colors.transparent;
+    }
+    return fill;
+  }
 }

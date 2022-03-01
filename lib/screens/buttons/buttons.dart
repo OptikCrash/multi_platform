@@ -5,8 +5,9 @@ import '../../main.dart';
 import '../../widgets/buttons.dart';
 
 class ButtonsScreen extends StatelessWidget {
-  const ButtonsScreen({Key? key}) : super(key: key);
+  const ButtonsScreen({Key? key, required this.orientation}) : super(key: key);
   final String buttons = 'Buttons.';
+  final Orientation orientation;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,7 @@ class ButtonsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 48),
         Row(
           children: [
             NButton(
@@ -81,6 +83,7 @@ class ButtonsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 36),
         Row(
           children: [
             NButton(
@@ -126,6 +129,7 @@ class ButtonsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 48),
         Row(
           children: [
             NButton(
@@ -171,6 +175,7 @@ class ButtonsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 36),
         Row(
           children: [
             NButton(
@@ -269,6 +274,7 @@ class ButtonsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 36),
         Row(
           children: [
             NButton(
@@ -317,7 +323,7 @@ class ButtonsScreen extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 48),
         Row(
           children: [
             NButton(
@@ -645,61 +651,78 @@ class ButtonsScreen extends StatelessWidget {
         const SizedBox(height: 16),
       ],
     );
+    Widget _mobileFields() => SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _pageTitle,
+                const Divider(),
+                const SizedBox(height: 16),
+                _groupN,
+                const SizedBox(height: 16),
+                _groupA,
+                const SizedBox(height: 16),
+                _groupI,
+                const SizedBox(height: 16),
+                _groupW,
+                const SizedBox(height: 16),
+                _groupM,
+                const SizedBox(height: 16),
+                _groupL,
+                const SizedBox(height: 16),
+                _groupWWW,
+              ],
+            ),
+          ),
+        );
+    Widget _desktopFields() => (orientation != Orientation.landscape)
+        ? SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _pageTitle,
+                  const Divider(),
+                  const SizedBox(height: 24),
+                  _landscapeN,
+                  const SizedBox(height: 16),
+                  _landscapeA,
+                  const SizedBox(height: 16),
+                  _landscapeI,
+                  const SizedBox(height: 16),
+                  _landscapeW,
+                  const SizedBox(height: 16),
+                  _landscapeM,
+                  const SizedBox(height: 16),
+                  _landscapeL,
+                  const SizedBox(height: 16),
+                  _landscapeWWW,
+                ],
+              ),
+            ),
+          )
+        : _mobileFields();
+
     switch (operatingSystem) {
       case OS.mac:
-        return OrientationBuilder(
-            builder: (BuildContext context, Orientation orientation) =>
-                (orientation != Orientation.landscape)
-                    ? _buttonsView(_pageTitle, _groupN, _groupA, _groupI,
-                        _groupW, _groupM, _groupL, _groupWWW)
-                    : _buttonsView(
-                        _pageTitle,
-                        _landscapeN,
-                        _landscapeA,
-                        _landscapeI,
-                        _landscapeW,
-                        _landscapeM,
-                        _landscapeL,
-                        _landscapeWWW));
+        return _desktopFields();
       case OS.linux:
+        return _desktopFields();
       case OS.windows:
+        return _desktopFields();
       case OS.web:
+        return _desktopFields();
       case OS.ios:
+        return _mobileFields();
       case OS.android:
-        return _buttonsView(_pageTitle, _groupN, _groupA, _groupI, _groupW,
-            _groupM, _groupL, _groupWWW);
+        return _mobileFields();
     }
-  }
-
-  Widget _buttonsView(
-    Widget pageTitle,
-    Widget groupN,
-    Widget groupA,
-    Widget groupI,
-    Widget groupW,
-    Widget groupM,
-    Widget groupL,
-    Widget groupWWW,
-  ) {
-    return SingleChildScrollView(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            pageTitle,
-            groupN,
-            groupA,
-            groupI,
-            groupW,
-            groupM,
-            groupL,
-            groupWWW,
-          ],
-        ),
-      ),
-    );
   }
 }
