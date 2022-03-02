@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_platform/widgets/text_field.dart';
+
+import '../enums.dart';
 
 enum _InputAction { increment, decrement, reset }
 
@@ -22,8 +26,6 @@ class NNumericField extends StatefulWidget {
     this.focusNode,
     this.textInputAction,
     this.style,
-    this.autofocus = false,
-    this.readOnly = false,
     this.toolbarOptions,
     this.showCursor,
     this.onChanged,
@@ -32,20 +34,17 @@ class NNumericField extends StatefulWidget {
     this.onFieldSubmitted,
     this.onSaved,
     this.validator,
-    this.enabled = true,
     this.cursorWidth = 2.0,
     this.cursorHeight,
     this.cursorRadius = const Radius.circular(2.0),
     this.cursorColor,
     this.keyboardAppearance,
-    this.enableInteractiveSelection = true,
     this.selectionControls,
     this.buildCounter,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.restorationId,
     this.icon,
     this.iconColor,
-    this.label,
     this.labelText,
     this.labelStyle,
     this.floatingLabelStyle,
@@ -56,15 +55,12 @@ class NNumericField extends StatefulWidget {
     this.floatingLabelBehavior,
     this.isDense,
     this.contentPadding,
-    this.isCollapsed = false,
-    this.suffix,
     this.footerLeftText,
     this.footerLeftStyle,
     this.footerLeftMaxLines,
     this.footerRightText,
     this.footerRight,
     this.footerRightStyle,
-    this.filled = false,
     this.fillColor,
     this.focusColor,
     this.hoverColor,
@@ -73,17 +69,26 @@ class NNumericField extends StatefulWidget {
     this.focusedErrorBorder,
     this.disabledBorder,
     this.enabledBorder,
-    this.border,
     this.semanticCounterText,
     this.constraints,
-    this.isInteger = false,
-    this.useMaterial,
-    this.useCupertino,
+    this.autofocus = false,
+    this.readOnly = false,
+    this.enabled = true,
+    this.enableInteractiveSelection = true,
+    this.isCollapsed = false,
+    this.isInteger = true,
     this.isOutlined = false,
     this.isNegativeValid = false,
     this.canReset = true,
     this.canIncrement = true,
     this.canDecrement = true,
+    this.useMaterial = false,
+    this.useCupertino = false,
+    this.useCupertinoPro = false,
+    this.useFluent = false,
+    this.useLinux = false,
+    this.useWeb = false,
+    this.filled = false,
     this.dividerColor,
     this.incrementButtonColor,
     this.incrementButtonIconColor,
@@ -91,11 +96,7 @@ class NNumericField extends StatefulWidget {
     this.decrementButtonIconColor,
     this.resetButtonColor,
     this.resetButtonIconColor,
-  })  : assert(!(label != null && labelText != null),
-            'Declaring both label and labelText is not supported.'),
-        assert(!(useMaterial != null && useCupertino != null),
-            'Declaring both Material design and Cupertino human interface is not supported.'),
-        super(key: key);
+  }) : super(key: key);
 
   //region properties
   final TextEditingController? controller;
@@ -124,9 +125,8 @@ class NNumericField extends StatefulWidget {
   final InputCounterWidgetBuilder? buildCounter;
   final AutovalidateMode autovalidateMode;
   final String? restorationId;
-  final Widget? icon;
+  final IconData? icon;
   final Color? iconColor;
-  final Widget? label;
   final String? labelText;
   final TextStyle? labelStyle;
   final TextStyle? floatingLabelStyle;
@@ -141,7 +141,6 @@ class NNumericField extends StatefulWidget {
   final bool? isDense;
   final EdgeInsetsGeometry? contentPadding;
   final bool isCollapsed;
-  final Widget? suffix;
   final String? footerRightText;
   final Widget? footerRight;
   final TextStyle? footerRightStyle;
@@ -152,17 +151,20 @@ class NNumericField extends StatefulWidget {
   final InputBorder? focusedErrorBorder;
   final InputBorder? disabledBorder;
   final InputBorder? enabledBorder;
-  final InputBorder? border;
   final String? semanticCounterText;
   final BoxConstraints? constraints;
-  final bool? useMaterial;
-  final bool? useCupertino;
   final bool isOutlined;
   final bool isInteger;
   final bool isNegativeValid;
   final bool canReset;
   final bool canIncrement;
   final bool canDecrement;
+  final bool useMaterial;
+  final bool useCupertino;
+  final bool useCupertinoPro;
+  final bool useFluent;
+  final bool useLinux;
+  final bool useWeb;
   final bool filled;
   final Color? fillColor;
   final Color? dividerColor;
@@ -181,21 +183,39 @@ class NNumericField extends StatefulWidget {
 class _NumericInput extends State<NNumericField> {
   final String _counterId = 'numeric-input-${DateTime.now().toIso8601String()}';
   late _NumericBloc bloc;
-  late bool _isIOS;
+  late NTextField _field;
 
   @override
   void initState() {
     super.initState();
-    //region cupertino or material
-    if (widget.useCupertino == true) {
-      _isIOS = true;
-    } else if (widget.useMaterial == true) {
-      _isIOS = false;
-    } else {
-      _isIOS = Platform.isIOS;
-    }
+    //region choose type by os or request
+    final OS _operatingSystem = (kIsWeb)
+        ? OS.web
+        : (widget.useMaterial)
+            ? OS.android
+            : (widget.useCupertino)
+                ? OS.ios
+                : (widget.useCupertinoPro)
+                    ? OS.mac
+                    : (widget.useFluent)
+                        ? OS.windows
+                        : (widget.useLinux)
+                            ? OS.linux
+                            : (widget.useWeb)
+                                ? OS.web
+                                : (Platform.isAndroid)
+                                    ? OS.android
+                                    : (Platform.isIOS)
+                                        ? OS.ios
+                                        : (Platform.isMacOS)
+                                            ? OS.mac
+                                            : (Platform.isWindows)
+                                                ? OS.windows
+                                                : (Platform.isLinux)
+                                                    ? OS.linux
+                                                    : OS.web;
     //endregion
-    //region bloc selection
+    //region choose bloc selection type
     bloc = widget.isInteger
         ? _IntBloc(
             context: context,
@@ -217,202 +237,279 @@ class _NumericInput extends State<NNumericField> {
       widget.controller!.text = event.toString();
     });
     //endregion
+    _field = NTextField(
+      controller: widget.controller,
+      // initialValue: widget.initialValue,
+      focusNode: widget.focusNode,
+      textInputAction: widget.textInputAction,
+      style: widget.style,
+      toolbarOptions: widget.toolbarOptions,
+      showCursor: widget.showCursor,
+      onChanged: widget.onChanged,
+      onTap: widget.onTap,
+      onEditingComplete: widget.onEditingComplete,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      onSaved: widget.onSaved,
+      validator: widget.validator,
+      cursorWidth: widget.cursorWidth,
+      cursorHeight: widget.cursorHeight,
+      cursorRadius: widget.cursorRadius,
+      cursorColor: widget.cursorColor,
+      keyboardAppearance: widget.keyboardAppearance,
+      selectionControls: widget.selectionControls,
+      buildCounter: widget.buildCounter,
+      autovalidateMode: widget.autovalidateMode,
+      restorationId: widget.restorationId,
+      icon: widget.icon,
+      iconColor: widget.iconColor,
+      labelText: widget.labelText,
+      labelStyle: widget.labelStyle,
+      floatingLabelStyle: widget.floatingLabelStyle,
+      hintTextDirection: widget.hintTextDirection,
+      hintMaxLines: widget.hintMaxLines,
+      errorText: widget.errorText,
+      errorStyle: widget.errorStyle,
+      floatingLabelBehavior: widget.floatingLabelBehavior,
+      isDense: widget.isDense,
+      contentPadding: widget.contentPadding,
+      helperText: widget.footerLeftText,
+      helperStyle: widget.footerLeftStyle,
+      helperMaxLines: widget.footerLeftMaxLines,
+      counterText: widget.footerRightText,
+      counterStyle: widget.footerRightStyle,
+      fillColor: widget.fillColor,
+      focusColor: widget.focusColor,
+      hoverColor: widget.hoverColor,
+      errorBorder: widget.errorBorder,
+      focusedBorder: widget.focusedBorder,
+      focusedErrorBorder: widget.focusedErrorBorder,
+      disabledBorder: widget.disabledBorder,
+      enabledBorder: widget.enabledBorder,
+      semanticCounterText: widget.semanticCounterText,
+      constraints: widget.constraints,
+      autofocus: widget.autofocus,
+      readOnly: widget.readOnly,
+      enabled: widget.enabled,
+      enableInteractiveSelection: widget.enableInteractiveSelection,
+      isOutlined: widget.isOutlined,
+      isCollapsed: widget.isCollapsed,
+      useMaterial: widget.useMaterial,
+      useCupertino: widget.useCupertino,
+      useCupertinoPro: widget.useCupertinoPro,
+      useFluent: widget.useFluent,
+      useLinux: widget.useLinux,
+      useWeb: widget.useWeb,
+      filled: widget.filled,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    double variableWidth = 96;
-    if (widget.icon != null) {
-      variableWidth += 36;
-    }
-    if (widget.canDecrement) {
-      variableWidth += 36;
-    }
-    if (widget.label != null || widget.labelText != null) {
-      variableWidth += 36;
-    }
-    return _isIOS
-        ? Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: 96,
-                  maxWidth: variableWidth,
-                  minHeight: 102,
-                ),
-                child: CupertinoFormRow(
-                  prefix: widget.icon,
-                  child: CupertinoTextFormFieldRow(
-                    decoration: _iosDecoration,
-                    controller: widget.controller,
-                    validator: widget.validator,
-                    prefix: _iosPrefix,
-                    onSaved: widget.onSaved,
-                    onChanged: widget.onChanged,
-                    onTap: widget.onTap,
-                    focusNode: widget.focusNode,
-                    keyboardType: TextInputType.number,
-                    textInputAction: widget.textInputAction,
-                    textAlign: TextAlign.center,
-                    style: widget.style ??
-                        TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface),
-                    readOnly: widget.readOnly,
-                    toolbarOptions: widget.toolbarOptions,
-                    showCursor: widget.showCursor,
-                    autofocus: widget.autofocus,
-                    onEditingComplete: widget.onEditingComplete,
-                    enabled: widget.enabled,
-                    cursorWidth: widget.cursorWidth,
-                    cursorHeight: widget.cursorHeight,
-                    cursorColor: widget.cursorColor,
-                    keyboardAppearance: widget.keyboardAppearance,
-                    enableInteractiveSelection:
-                        widget.enableInteractiveSelection,
-                    selectionControls: widget.selectionControls,
-                  ),
-                  helper: _iosFooter,
-                  error: _iosError,
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const SizedBox(height: 12),
-                  _iosSuffix,
-                  const SizedBox(height: 12),
-                  if (widget.footerRightText?.isNotEmpty == true)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: Text(
-                        widget.footerRightText!,
-                        style: widget.footerRightStyle ??
-                            TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.onSurface),
-                      ),
-                    ),
-                ],
-              )
-            ],
-          )
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.icon != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: widget.icon!,
-                  ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 140,
-                  height: 72,
-                  child: TextFormField(
-                    key: widget.key,
-                    controller: widget.controller,
-                    focusNode: widget.focusNode,
-                    decoration: _androidDecoration,
-                    keyboardType: TextInputType.number,
-                    textInputAction: widget.textInputAction,
-                    style: widget.style,
-                    textAlign: TextAlign.center,
-                    autofocus: widget.autofocus,
-                    readOnly: widget.readOnly,
-                    toolbarOptions: widget.toolbarOptions,
-                    showCursor: widget.showCursor,
-                    onChanged: widget.onChanged,
-                    onTap: widget.onTap,
-                    onEditingComplete: widget.onEditingComplete,
-                    onFieldSubmitted: widget.onFieldSubmitted,
-                    onSaved: widget.onSaved,
-                    validator: widget.validator,
-                    enabled: widget.enabled,
-                    cursorWidth: widget.cursorWidth,
-                    cursorHeight: widget.cursorHeight,
-                    cursorRadius: widget.cursorRadius,
-                    cursorColor: widget.cursorColor,
-                    keyboardAppearance: widget.keyboardAppearance,
-                    enableInteractiveSelection:
-                        widget.enableInteractiveSelection,
-                    selectionControls: widget.selectionControls,
-                    buildCounter: widget.buildCounter,
-                    autovalidateMode: widget.autovalidateMode,
-                    restorationId: widget.restorationId,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        if (widget.canIncrement)
-                          FloatingActionButton(
-                            backgroundColor: widget.incrementButtonColor ??
-                                Theme.of(context).colorScheme.secondary,
-                            heroTag: "increment $_counterId",
-                            mini: true,
-                            child: Icon(
-                              Icons.add,
-                              color: widget.incrementButtonIconColor ??
-                                  Theme.of(context)
-                                      .buttonTheme
-                                      .colorScheme
-                                      ?.onSecondary ??
-                                  Colors.white,
-                            ),
-                            onPressed: () => setState(() {
-                              bloc.increment();
-                            }),
-                          ),
-                        if (widget.canReset)
-                          FloatingActionButton(
-                            backgroundColor: widget.resetButtonColor ??
-                                Theme.of(context).colorScheme.secondary,
-                            heroTag: "reset $_counterId",
-                            mini: true,
-                            child: Icon(
-                              Icons.refresh,
-                              color: widget.resetButtonIconColor ??
-                                  Theme.of(context)
-                                      .buttonTheme
-                                      .colorScheme
-                                      ?.onSecondary ??
-                                  Colors.white,
-                            ),
-                            onPressed: () => setState(() {
-                              bloc.reset();
-                            }),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    if (_counter != null) _counter!,
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ],
-            ));
+    // double variableWidth = 96;
+    // if (widget.icon != null) {
+    //   variableWidth += 36;
+    // }
+    // if (widget.canDecrement) {
+    //   variableWidth += 36;
+    // }
+    // if (widget.label != null || widget.labelText != null) {
+    //   variableWidth += 36;
+    // }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _leading,
+          Flexible(
+            fit: FlexFit.tight,
+            child: _field,
+          ),
+          const SizedBox(width: 8),
+          ..._trailing,
+        ],
+      ),
+    );
+    // return _isIOS
+    //     ? Row(
+    //         mainAxisSize: MainAxisSize.max,
+    //         mainAxisAlignment: MainAxisAlignment.end,
+    //         crossAxisAlignment: CrossAxisAlignment.start,
+    //         children: [
+    //           ConstrainedBox(
+    //             constraints: BoxConstraints(
+    //               minWidth: 96,
+    //               maxWidth: variableWidth,
+    //               minHeight: 102,
+    //             ),
+    //             child: CupertinoFormRow(
+    //               prefix: widget.icon,
+    //               child: CupertinoTextFormFieldRow(
+    //                 decoration: _iosDecoration,
+    //                 controller: widget.controller,
+    //                 validator: widget.validator,
+    //                 prefix: _iosPrefix,
+    //                 onSaved: widget.onSaved,
+    //                 onChanged: widget.onChanged,
+    //                 onTap: widget.onTap,
+    //                 focusNode: widget.focusNode,
+    //                 keyboardType: TextInputType.number,
+    //                 textInputAction: widget.textInputAction,
+    //                 textAlign: TextAlign.center,
+    //                 style: widget.style ??
+    //                     TextStyle(
+    //                         color: Theme.of(context).colorScheme.onSurface),
+    //                 readOnly: widget.readOnly,
+    //                 toolbarOptions: widget.toolbarOptions,
+    //                 showCursor: widget.showCursor,
+    //                 autofocus: widget.autofocus,
+    //                 onEditingComplete: widget.onEditingComplete,
+    //                 enabled: widget.enabled,
+    //                 cursorWidth: widget.cursorWidth,
+    //                 cursorHeight: widget.cursorHeight,
+    //                 cursorColor: widget.cursorColor,
+    //                 keyboardAppearance: widget.keyboardAppearance,
+    //                 enableInteractiveSelection:
+    //                     widget.enableInteractiveSelection,
+    //                 selectionControls: widget.selectionControls,
+    //               ),
+    //               helper: _iosFooter,
+    //               error: _iosError,
+    //             ),
+    //           ),
+    //           Column(
+    //             mainAxisSize: MainAxisSize.min,
+    //             mainAxisAlignment: MainAxisAlignment.center,
+    //             crossAxisAlignment: CrossAxisAlignment.end,
+    //             children: [
+    //               const SizedBox(height: 12),
+    //               _iosSuffix,
+    //               const SizedBox(height: 12),
+    //               if (widget.footerRightText?.isNotEmpty == true)
+    //                 Padding(
+    //                   padding: const EdgeInsets.only(right: 12.0),
+    //                   child: Text(
+    //                     widget.footerRightText!,
+    //                     style: widget.footerRightStyle ??
+    //                         TextStyle(
+    //                             fontSize: 14,
+    //                             color: Theme.of(context).colorScheme.onSurface),
+    //                   ),
+    //                 ),
+    //             ],
+    //           )
+    //         ],
+    //       )
+    //     : Padding(
+    //         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    //         child: Row(
+    //           mainAxisSize: MainAxisSize.min,
+    //           mainAxisAlignment: MainAxisAlignment.end,
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           children: [
+    //             if (widget.icon != null)
+    //               Padding(
+    //                 padding: const EdgeInsets.only(top: 12),
+    //                 child: widget.icon!,
+    //               ),
+    //             const SizedBox(width: 12),
+    //             SizedBox(
+    //               width: 140,
+    //               height: 72,
+    //               child: TextFormField(
+    //                 key: widget.key,
+    //                 controller: widget.controller,
+    //                 focusNode: widget.focusNode,
+    //                 decoration: _androidDecoration,
+    //                 keyboardType: TextInputType.number,
+    //                 textInputAction: widget.textInputAction,
+    //                 style: widget.style,
+    //                 textAlign: TextAlign.center,
+    //                 autofocus: widget.autofocus,
+    //                 readOnly: widget.readOnly,
+    //                 toolbarOptions: widget.toolbarOptions,
+    //                 showCursor: widget.showCursor,
+    //                 onChanged: widget.onChanged,
+    //                 onTap: widget.onTap,
+    //                 onEditingComplete: widget.onEditingComplete,
+    //                 onFieldSubmitted: widget.onFieldSubmitted,
+    //                 onSaved: widget.onSaved,
+    //                 validator: widget.validator,
+    //                 enabled: widget.enabled,
+    //                 cursorWidth: widget.cursorWidth,
+    //                 cursorHeight: widget.cursorHeight,
+    //                 cursorRadius: widget.cursorRadius,
+    //                 cursorColor: widget.cursorColor,
+    //                 keyboardAppearance: widget.keyboardAppearance,
+    //                 enableInteractiveSelection:
+    //                     widget.enableInteractiveSelection,
+    //                 selectionControls: widget.selectionControls,
+    //                 buildCounter: widget.buildCounter,
+    //                 autovalidateMode: widget.autovalidateMode,
+    //                 restorationId: widget.restorationId,
+    //               ),
+    //             ),
+    //             const SizedBox(width: 12),
+    //             Column(
+    //               children: [
+    //                 Row(
+    //                   children: [
+    //                     if (widget.canIncrement)
+    //                       FloatingActionButton(
+    //                         backgroundColor: widget.incrementButtonColor ??
+    //                             Theme.of(context).colorScheme.secondary,
+    //                         heroTag: "increment $_counterId",
+    //                         mini: true,
+    //                         child: Icon(
+    //                           Icons.add,
+    //                           color: widget.incrementButtonIconColor ??
+    //                               Theme.of(context)
+    //                                   .buttonTheme
+    //                                   .colorScheme
+    //                                   ?.onSecondary ??
+    //                               Colors.white,
+    //                         ),
+    //                         onPressed: () => setState(() {
+    //                           bloc.increment();
+    //                         }),
+    //                       ),
+    //                     if (widget.canReset)
+    //                       FloatingActionButton(
+    //                         backgroundColor: widget.resetButtonColor ??
+    //                             Theme.of(context).colorScheme.secondary,
+    //                         heroTag: "reset $_counterId",
+    //                         mini: true,
+    //                         child: Icon(
+    //                           Icons.refresh,
+    //                           color: widget.resetButtonIconColor ??
+    //                               Theme.of(context)
+    //                                   .buttonTheme
+    //                                   .colorScheme
+    //                                   ?.onSecondary ??
+    //                               Colors.white,
+    //                         ),
+    //                         onPressed: () => setState(() {
+    //                           bloc.reset();
+    //                         }),
+    //                       ),
+    //                   ],
+    //                 ),
+    //                 const SizedBox(height: 10),
+    //                 if (_counter != null) _counter!,
+    //                 const SizedBox(height: 16),
+    //               ],
+    //             ),
+    //           ],
+    //         ));
   }
 
-  Widget? get _label =>
-      widget.label ??
-      ((widget.labelText != null)
-          ? Text(
-              widget.labelText!,
-              style: widget.labelStyle ??
-                  TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            )
-          : null);
+  Widget? get _label => (widget.labelText != null)
+      ? Text(
+          widget.labelText!,
+          style: widget.labelStyle ??
+              TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        )
+      : null;
 
   Widget? get _counter =>
       widget.footerRight ??
@@ -426,267 +523,57 @@ class _NumericInput extends State<NNumericField> {
             )
           : null);
 
-  get _iosError => (widget.errorText?.isNotEmpty == true)
-      ? Text(widget.errorText!,
-          style: widget.errorStyle,
-          maxLines: 1,
-          softWrap: true,
-          overflow: TextOverflow.ellipsis)
-      : null;
+  get _leading => _decBtn;
 
-  get _iosFooter => Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const SizedBox(height: 24),
-          if (widget.footerLeftText?.isNotEmpty == true)
-            Text(widget.footerLeftText!,
-                style: widget.footerLeftStyle ??
-                    TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurface),
-                maxLines: widget.footerLeftMaxLines ??
-                    Theme.of(context).inputDecorationTheme.helperMaxLines),
-        ],
-      );
+  get _trailing => [_incBtn, const SizedBox(width: 8), _clrBtn];
 
-  get _iosPrefix => Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (_label != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 5.0),
-              child: _label!,
-            ),
-          if (widget.canDecrement)
-            SizedBox(
-              height: 36,
-              width: 36,
-              child: CupertinoButton(
-                color: widget.decrementButtonColor ??
-                    Theme.of(context).colorScheme.secondary,
-                minSize: 24.0,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                alignment: Alignment.centerLeft,
-                child: Icon(
-                  Icons.remove,
-                  color: widget.decrementButtonIconColor ??
-                      Theme.of(context).buttonTheme.colorScheme?.onSecondary ??
-                      Colors.white,
-                ),
-                onPressed: () => setState(() {
-                  bloc.decrement();
-                }),
-              ),
-            ),
-          const SizedBox(width: 12),
-        ],
-      );
-
-  get _iosSuffix => ConstrainedBox(
-        constraints: const BoxConstraints(
-            minHeight: 34, maxHeight: 48, maxWidth: 256, minWidth: 104),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (widget.canIncrement)
-              SizedBox(
-                height: 36,
-                width: 36,
-                child: CupertinoButton(
-                  color: widget.incrementButtonColor ??
-                      Theme.of(context).colorScheme.secondary,
-                  minSize: 24.0,
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    Icons.add,
-                    color: widget.incrementButtonIconColor ??
-                        Theme.of(context)
-                            .buttonTheme
-                            .colorScheme
-                            ?.onSecondary ??
-                        Colors.white,
-                  ),
-                  onPressed: () => setState(() {
-                    bloc.increment();
-                  }),
-                ),
-              ),
-            const SizedBox(width: 12),
-            if (widget.canReset)
-              SizedBox(
-                height: 36,
-                width: 36,
-                child: CupertinoButton(
-                  color: widget.resetButtonColor ??
-                      Theme.of(context).colorScheme.secondary,
-                  minSize: 24.0,
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    Icons.refresh,
-                    color: widget.resetButtonIconColor ??
-                        Theme.of(context)
-                            .buttonTheme
-                            .colorScheme
-                            ?.onSecondary ??
-                        Colors.white,
-                  ),
-                  onPressed: () => setState(() {
-                    bloc.reset();
-                  }),
-                ),
-              ),
-            const SizedBox(width: 12),
-            if (widget.suffix != null) widget.suffix!,
-            const SizedBox(width: 12),
-          ],
+  get _decBtn => FloatingActionButton(
+        backgroundColor: widget.decrementButtonColor ??
+            Theme.of(context).colorScheme.secondary,
+        heroTag: "decrement $_counterId",
+        mini: true,
+        child: Icon(
+          Icons.remove,
+          color: widget.decrementButtonIconColor ??
+              Theme.of(context).buttonTheme.colorScheme?.onSecondary ??
+              Colors.white,
         ),
+        onPressed: () => setState(() {
+          bloc.decrement();
+        }),
       );
 
-  get _iosBorderSide =>
-      BorderSide(color: Theme.of(context).colorScheme.onSurface, width: 0.0);
+  get _incBtn => FloatingActionButton(
+        backgroundColor: widget.incrementButtonColor ??
+            Theme.of(context).colorScheme.secondary,
+        heroTag: "increment $_counterId",
+        mini: true,
+        child: Icon(
+          Icons.add,
+          color: widget.incrementButtonIconColor ??
+              Theme.of(context).buttonTheme.colorScheme?.onSecondary ??
+              Colors.white,
+        ),
+        onPressed: () => setState(() {
+          bloc.increment();
+        }),
+      );
 
-  get _iosDecoration => widget.isOutlined
-      ? BoxDecoration(
-          color: widget.filled == true
-              ? widget.fillColor ??
-                  Theme.of(context).inputDecorationTheme.fillColor
-              : Colors.transparent,
-          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-          border: Border(
-              top: _iosBorderSide,
-              bottom: _iosBorderSide,
-              left: _iosBorderSide,
-              right: _iosBorderSide))
-      : widget.border;
-
-  get _androidDecoration => widget.isOutlined
-      ? InputDecoration(
-          icon: (widget.canDecrement)
-              ? FloatingActionButton(
-                  backgroundColor: widget.decrementButtonColor ??
-                      Theme.of(context).colorScheme.secondary,
-                  heroTag: "decrement $_counterId",
-                  mini: true,
-                  child: Icon(
-                    Icons.remove,
-                    color: widget.decrementButtonIconColor ??
-                        Theme.of(context)
-                            .buttonTheme
-                            .colorScheme
-                            ?.onSecondary ??
-                        Colors.white,
-                  ),
-                  onPressed: () => setState(() {
-                    bloc.decrement();
-                  }),
-                )
-              : null,
-          label: _label,
-          floatingLabelStyle: widget.floatingLabelStyle,
-          helperText: widget.footerLeftText,
-          helperStyle: widget.footerLeftStyle,
-          helperMaxLines: widget.footerLeftMaxLines,
-          hintTextDirection: widget.hintTextDirection,
-          hintMaxLines: widget.hintMaxLines,
-          errorText: widget.errorText,
-          errorStyle: widget.errorStyle,
-          floatingLabelBehavior: widget.floatingLabelBehavior,
-          isCollapsed: widget.isCollapsed,
-          isDense: widget.isDense,
-          contentPadding: widget.contentPadding,
-          suffix: (widget.suffix != null) ? widget.suffix! : null,
-          filled: widget.filled,
-          fillColor: widget.fillColor ??
-              Theme.of(context).inputDecorationTheme.fillColor,
-          focusColor: widget.focusColor,
-          hoverColor: widget.hoverColor,
-          errorBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Theme.of(context).errorColor,
-                  width: 1,
-                  style: BorderStyle.solid)),
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 1,
-                  style: BorderStyle.solid)),
-          focusedErrorBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: widget.focusColor ?? Theme.of(context).focusColor,
-                  width: 1,
-                  style: BorderStyle.solid)),
-          disabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Theme.of(context).disabledColor,
-                  width: 1,
-                  style: BorderStyle.solid)),
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: widget.iconColor ??
-                      Theme.of(context).colorScheme.onSurface,
-                  width: 1,
-                  style: BorderStyle.solid)),
-          semanticCounterText: widget.semanticCounterText,
-          constraints: widget.constraints,
-        )
-      : widget.border ??
-          InputDecoration(
-            icon: (widget.canDecrement)
-                ? FloatingActionButton(
-                    backgroundColor: widget.decrementButtonColor ??
-                        Theme.of(context).colorScheme.secondary,
-                    heroTag: "decrement $_counterId",
-                    mini: true,
-                    child: Icon(
-                      Icons.remove,
-                      color: widget.decrementButtonIconColor ??
-                          Theme.of(context)
-                              .buttonTheme
-                              .colorScheme
-                              ?.onSecondary ??
-                          Colors.white,
-                    ),
-                    onPressed: () => setState(() {
-                      bloc.decrement();
-                    }),
-                  )
-                : null,
-            label: _label,
-            floatingLabelStyle: widget.floatingLabelStyle,
-            helperText: widget.footerLeftText,
-            helperStyle: widget.footerLeftStyle,
-            helperMaxLines: widget.footerLeftMaxLines,
-            hintTextDirection: widget.hintTextDirection,
-            hintMaxLines: widget.hintMaxLines,
-            errorText: widget.errorText,
-            errorStyle: widget.errorStyle,
-            floatingLabelBehavior: widget.floatingLabelBehavior,
-            isCollapsed: widget.isCollapsed,
-            isDense: widget.isDense,
-            contentPadding: widget.contentPadding,
-            suffix: (widget.suffix != null) ? widget.suffix! : null,
-            filled: widget.filled,
-            fillColor: widget.fillColor ??
-                Theme.of(context).inputDecorationTheme.fillColor,
-            focusColor: widget.focusColor,
-            hoverColor: widget.hoverColor,
-            errorBorder: widget.errorBorder,
-            focusedBorder: widget.focusedBorder,
-            focusedErrorBorder: widget.focusedErrorBorder,
-            disabledBorder: widget.disabledBorder,
-            enabledBorder: widget.enabledBorder,
-            border: widget.border,
-            semanticCounterText: widget.semanticCounterText,
-            constraints: widget.constraints,
-          );
+  get _clrBtn => FloatingActionButton(
+        backgroundColor:
+            widget.resetButtonColor ?? Theme.of(context).colorScheme.secondary,
+        heroTag: "reset $_counterId",
+        mini: true,
+        child: Icon(
+          Icons.refresh,
+          color: widget.resetButtonIconColor ??
+              Theme.of(context).buttonTheme.colorScheme?.onSecondary ??
+              Colors.white,
+        ),
+        onPressed: () => setState(() {
+          bloc.reset();
+        }),
+      );
 }
 
 class _IntBloc implements _NumericBloc<int> {

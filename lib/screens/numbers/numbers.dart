@@ -17,6 +17,18 @@ class NumberScreen extends StatefulWidget {
 }
 
 class _NumberScreenState extends State<NumberScreen> {
+  final TextEditingController androidDefaultControllerA =
+      TextEditingController();
+  final TextEditingController androidDefaultControllerB =
+      TextEditingController();
+  final TextEditingController iosDefaultControllerA = TextEditingController();
+  final TextEditingController iosDefaultControllerB = TextEditingController();
+  final TextEditingController iosDefaultControllerC = TextEditingController();
+  final TextEditingController iosDefaultControllerD = TextEditingController();
+  final TextEditingController winDefaultControllerA = TextEditingController();
+  final TextEditingController winDefaultControllerB = TextEditingController();
+  final TextEditingController linuxDefaultControllerA = TextEditingController();
+  final TextEditingController linuxDefaultControllerB = TextEditingController();
   @override
   Widget build(BuildContext context) {
     Widget _pageTitle = Text(
@@ -43,11 +55,25 @@ class _NumberScreenState extends State<NumberScreen> {
             ),
           ),
           NNumericField(
-            controller: TextEditingController(),
+            useMaterial: true,
+            controller: androidDefaultControllerA,
+            labelText: 'default',
+            footerRightText: 'footer ->',
+            footerLeftText: '<- footer',
+            validator: (value) => (androidDefaultControllerA.text.isNotEmpty)
+                ? null
+                : 'a number must be entered...',
           ),
           NNumericField(
+            useMaterial: true,
             isOutlined: true,
-            controller: TextEditingController(),
+            controller: androidDefaultControllerB,
+            labelText: 'default',
+            footerRightText: 'footer ->',
+            footerLeftText: '<- footer',
+            validator: (value) => (androidDefaultControllerB.text.isNotEmpty)
+                ? null
+                : 'a number must be entered...',
           )
         ],
       ),
@@ -60,12 +86,24 @@ class _NumberScreenState extends State<NumberScreen> {
                 ?.copyWith(fontFamily: 'SanFransisco-Compact')),
         children: [
           NNumericField(
-            controller: TextEditingController(),
+            controller: iosDefaultControllerA,
+            labelText: 'default',
+            footerRightText: 'footer ->',
+            footerLeftText: '<- footer',
+            validator: (value) => (iosDefaultControllerA.text.isNotEmpty)
+                ? null
+                : 'a number must be entered...',
             useCupertino: true,
           ),
           NNumericField(
             isOutlined: true,
-            controller: TextEditingController(),
+            controller: iosDefaultControllerB,
+            labelText: 'default',
+            footerRightText: 'footer ->',
+            footerLeftText: '<- footer',
+            validator: (value) => (iosDefaultControllerB.text.isNotEmpty)
+                ? null
+                : 'a number must be entered...',
             useCupertino: true,
           ),
         ]);
@@ -79,12 +117,24 @@ class _NumberScreenState extends State<NumberScreen> {
         ),
         children: [
           NNumericField(
-            controller: TextEditingController(),
+            controller: iosDefaultControllerC,
+            labelText: 'default',
+            footerRightText: 'footer ->',
+            footerLeftText: '<- footer',
+            validator: (value) => (iosDefaultControllerC.text.isNotEmpty)
+                ? null
+                : 'a number must be entered...',
             useCupertino: true,
           ),
           NNumericField(
             isOutlined: true,
-            controller: TextEditingController(),
+            controller: iosDefaultControllerD,
+            labelText: 'default',
+            footerRightText: 'footer ->',
+            footerLeftText: '<- footer',
+            validator: (value) => (iosDefaultControllerD.text.isNotEmpty)
+                ? null
+                : 'a number must be entered...',
             useCupertino: true,
           ),
         ]);
@@ -106,11 +156,25 @@ class _NumberScreenState extends State<NumberScreen> {
                       ?.copyWith(fontFamily: 'Segoe')),
             ),
             NNumericField(
-              controller: TextEditingController(),
+              useFluent: true,
+              controller: winDefaultControllerA,
+              labelText: 'default',
+              footerRightText: 'footer ->',
+              footerLeftText: '<- footer',
+              validator: (value) => (winDefaultControllerA.text.isNotEmpty)
+                  ? null
+                  : 'a number must be entered...',
             ),
             NNumericField(
+              useFluent: true,
               isOutlined: true,
-              controller: TextEditingController(),
+              controller: winDefaultControllerB,
+              labelText: 'default',
+              footerRightText: 'footer ->',
+              footerLeftText: '<- footer',
+              validator: (value) => (winDefaultControllerB.text.isNotEmpty)
+                  ? null
+                  : 'a number must be entered...',
             )
           ],
         ));
@@ -132,11 +196,24 @@ class _NumberScreenState extends State<NumberScreen> {
                       ?.copyWith(fontFamily: 'Cantarell')),
             ),
             NNumericField(
-              controller: TextEditingController(),
+              useLinux: true,
+              controller: linuxDefaultControllerA,
+              labelText: 'default',
+              footerRightText: 'footer ->',
+              footerLeftText: '<- footer',
+              validator: (value) => (linuxDefaultControllerA.text.isNotEmpty)
+                  ? null
+                  : 'a number must be entered...',
             ),
             NNumericField(
               isOutlined: true,
-              controller: TextEditingController(),
+              controller: linuxDefaultControllerB,
+              labelText: 'default',
+              footerRightText: 'footer ->',
+              footerLeftText: '<- footer',
+              validator: (value) => (linuxDefaultControllerB.text.isNotEmpty)
+                  ? null
+                  : 'a number must be entered...',
             )
           ],
         ),
